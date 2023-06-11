@@ -1,0 +1,75 @@
+using System.Collections;
+using System.Collections.Generic;
+using TMPro;
+using UnityEngine;
+
+public class LineOfSight : MonoBehaviour
+{
+    [SerializeField] [Range(2, 90)] int rayCount;
+    [SerializeField] float fov;
+    [SerializeField] float viewDistance;
+    [SerializeField] Vector3[] vertices;
+    int[] triangles;
+    Vector2[] uv;
+    Mesh mesh;
+    MeshFilter viewCone;
+    float time;
+    bool caught;
+
+    void Start()
+    {
+        viewCone = GetComponent<MeshFilter>();
+        mesh = new();
+        vertices = new Vector3[rayCount + 1];
+        triangles = new int[3 * (rayCount - 1)];
+        uv = new Vector2[vertices.Length];
+    }
+
+    void Update()
+    {
+        time += Time.deltaTime;
+        if (time > 0.1f && !caught)
+        {
+            Detection();
+        }
+    }
+
+    void Detection()
+    {
+        float angle = 90 - fov / 2;
+        angle %= 360;
+        if (angle < 0)
+        {
+            angle += 360;
+        }
+        vertices[0] = Vector3.zero;
+        for (int i = 1; i <= rayCount; i++)
+        {
+            Vector3 direction = new Vector2(Mathf.Cos(angle * Mathf.Deg2Rad), Mathf.Sin(angle * Mathf.Deg2Rad));
+            RaycastHit2D hit = Physics2D.Raycast(transform.position, transform.TransformDirection(direction), viewDistance);
+            if (hit.collider != null)
+            {
+                vertices[i] = transform.InverseTransformPoint(hit.point);
+                if (hit.transform.TryGetComponent(out PlayerMovement player))
+                {
+                    caught = true;
+                }
+            }
+            else
+            {
+                vertices[i] = direction * viewDistance;
+            }
+            angle += fov / (rayCount - 1);
+        }
+        for (int i = 0; i < rayCount - 1; i++)
+        {
+            triangles[i * 3] = 0;
+            triangles[(i * 3) + 1] = i + 1;
+            triangles[(i * 3) + 2] = i + 2;
+        }
+        mesh.vertices = vertices;
+        mesh.triangles = triangles;
+        mesh.uv = uv;
+        viewCone.mesh = mesh;
+    }
+}
