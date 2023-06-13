@@ -13,9 +13,8 @@ public class DialogueData : ScriptableObject
 [System.Serializable]
 public class DialogueLine
 {
-    [SerializeField] string text;
     [SerializeField] string speaker;
-
-    public string Text { get => text; }
+    [SerializeField] string text;
     public string Speaker { get => speaker; }
+    public string Text { get => text; }
 }

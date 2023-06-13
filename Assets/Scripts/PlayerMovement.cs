@@ -8,6 +8,8 @@ public class PlayerMovement : MonoBehaviour
 {
     [SerializeField] float moveSpeed = 5f;
     Vector2 direction;
+    float mouseX;
+    float mouseY;
     Rigidbody2D rb;
 
     void Start()
@@ -18,17 +20,23 @@ public class PlayerMovement : MonoBehaviour
     void FixedUpdate()
     {
         Move();
+        LookAtMouse();
+    }
+
+    private void LookAtMouse()
+    {
+        Vector2 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        transform.up = mousePos - (Vector2)transform.position;
     }
 
     private void Move()
     {
-        float moveX = Input.GetAxis("Horizontal");
-        float moveY = Input.GetAxis("Vertical");
-        direction = new Vector2(moveX, moveY).normalized;
+        float x = Input.GetAxis("Horizontal");
+        float y = Input.GetAxis("Vertical");
+        direction = new Vector2(x, y).normalized;
         if (direction.magnitude > 0.01f)
         {
             rb.velocity = direction * moveSpeed;
-            transform.up = rb.velocity;
         }
         else
         {

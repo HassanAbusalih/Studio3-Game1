@@ -8,7 +8,7 @@ public class LineOfSight : MonoBehaviour
     [SerializeField] [Range(2, 90)] int rayCount;
     [SerializeField] float fov;
     [SerializeField] float viewDistance;
-    [SerializeField] Vector3[] vertices;
+    Vector3[] vertices;
     int[] triangles;
     Vector2[] uv;
     Mesh mesh;
@@ -52,7 +52,7 @@ public class LineOfSight : MonoBehaviour
                 vertices[i] = transform.InverseTransformPoint(hit.point);
                 if (hit.transform.TryGetComponent(out PlayerMovement player))
                 {
-                    caught = true;
+                    //caught = true;
                 }
             }
             else
