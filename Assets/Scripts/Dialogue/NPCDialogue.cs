@@ -1,10 +1,12 @@
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 /// <summary>
-/// This class handles detecting if a player is nearby, and if they are it displays the dialogue that the NPC has. If there are multiple dialogue options,
-/// it allows for selection.
+/// This class handles detecting if a player is nearby, and if they are and the player presses a button, it displays the dialogue that the NPC has. 
+/// If there are multiple dialogue options, it allows for selection between them, with one option exiting the dialogues.
 /// </summary>
 
 public class NPCDialogue : MonoBehaviour
@@ -14,6 +16,7 @@ public class NPCDialogue : MonoBehaviour
     Queue<string> dialogueText = new();
     Queue<string> dialogueSpeaker = new();
     [SerializeField] Dialogue dialogue;
+    List<GameObject> optionList = new List<GameObject>();
 
     void Update()
     {
@@ -21,37 +24,87 @@ public class NPCDialogue : MonoBehaviour
         {
             CheckState();
         }
+        if (Input.GetKeyDown(KeyCode.LeftShift))
+        {
+            foreach (var option in optionList)
+            {
+                Destroy(option);
+            }
+            optionList.Clear();
+            ExitDialogue();
+        }
     }
 
-    private void CheckState()
+    void CheckState()
     {
         switch (dialogueState)
         {
             case DialogueState.InRange:
-                StartDialogue();
+                playerDialogue.DialogueUI.SetActive(true);
+                StartDialogue(dialogue.IntroLines);
                 break;
+            
             case DialogueState.InDialogue:
                 if (dialogueText.Count == 0)
                 {
-                    dialogueState = DialogueState.InDialogueOptions;
+                    if (dialogue.DialogueOptions.Length == 0)
+                    {
+                        ExitDialogue();
+                    }
+                    else
+                    {
+                        dialogueState = DialogueState.InDialogueOptions;
+                        playerDialogue.DialogueText.SetActive(false);
+                        playerDialogue.DialogueOptions.SetActive(true);
+                        foreach (var option in dialogue.DialogueOptions)
+                        {
+                            optionList.Add(Instantiate(playerDialogue.DialogueOptionsPrefab, playerDialogue.DialogueOptions.transform));
+                            optionList[optionList.Count - 1].GetComponent<TextMeshProUGUI>().text = option.PlayerLine;
+                            optionList[optionList.Count - 1].GetComponentInChildren<Button>().onClick.AddListener(() => SelectOption(option));
+                        }
+                        optionList.Add(Instantiate(playerDialogue.DialogueOptionsPrefab, playerDialogue.DialogueOptions.transform));
+                        optionList[optionList.Count - 1].GetComponent<TextMeshProUGUI>().text = dialogue.EndDialogue.PlayerLine;
+                        optionList[optionList.Count - 1].GetComponentInChildren<Button>().onClick.AddListener(ExitDialogue);
+                    }
                     break;
                 }
                 NextLine();
                 break;
-            case DialogueState.InDialogueOptions:
-                for (int i = 0; i < playerDialogue.PlayerOptionsUI.Length; i++)
+            
+            case DialogueState.ExitingDialogue:
+                if (dialogueText.Count == 0)
                 {
-                    playerDialogue.PlayerOptionsUI[i].gameObject.SetActive(true);
-                    playerDialogue.PlayerOptionsUI[i].text = dialogue.DialogueOptions[i].PlayerLine;
+                    ExitDialogue();
+                    break;
                 }
+                NextLine();
                 break;
         }
     }
 
-    private void StartDialogue()
+    void ExitDialogue()
     {
-        playerDialogue.DialogueUI.SetActive(enabled);
-        foreach (var line in dialogue.IntroLines.Lines)
+        playerDialogue.DialogueText.SetActive(false);
+        playerDialogue.DialogueUI.SetActive(false);
+        playerDialogue.DialogueOptions.SetActive(false);
+        dialogueState = DialogueState.InRange;
+    }
+
+    void SelectOption(DialogueOptions dialogueOptions)
+    {
+        foreach(var option in optionList)
+        {
+            Destroy(option);
+        }
+        optionList.Clear();
+        StartDialogue(dialogueOptions.NpcDialogue);
+    }
+
+    void StartDialogue(DialogueData dialogueData)
+    {
+        playerDialogue.DialogueOptions.SetActive(false);
+        playerDialogue.DialogueText.SetActive(true);
+        foreach (var line in dialogueData.Lines)
         {
             dialogueSpeaker.Enqueue(line.Speaker);
             dialogueText.Enqueue(line.Text);
@@ -62,8 +115,11 @@ public class NPCDialogue : MonoBehaviour
 
     private void NextLine()
     {
-        playerDialogue.DialogueSpeaker.text = dialogueSpeaker.Dequeue();
-        playerDialogue.DialogueText.text = dialogueText.Dequeue();
+        if (dialogueText.TryPeek(out string result))
+        {
+            playerDialogue.DialogueSpeaker.text = dialogueSpeaker.Dequeue();
+            playerDialogue.DialogueLine.text = dialogueText.Dequeue();
+        }
     }
 
     private void OnTriggerEnter2D(Collider2D collision)

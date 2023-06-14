@@ -9,12 +9,16 @@ using UnityEngine;
 public class PlayerDialogue : MonoBehaviour
 {
     [SerializeField] GameObject dialogueUI;
-    [SerializeField] TextMeshProUGUI dialogueText;
+    [SerializeField] GameObject dialogueText;
+    [SerializeField] GameObject dialogueOptions;
+    [SerializeField] GameObject dialogueOptionsPrefab;
     [SerializeField] TextMeshProUGUI dialogueSpeaker;
-    [SerializeField] TextMeshProUGUI[] playerOptionsUI;
+    [SerializeField] TextMeshProUGUI dialogueLine;
 
-    public GameObject DialogueUI { get => dialogueUI; }
+    public GameObject DialogueText { get => dialogueText; }
     public TextMeshProUGUI DialogueSpeaker { get => dialogueSpeaker; }
-    public TextMeshProUGUI DialogueText { get => dialogueText; }
-    public TextMeshProUGUI[] PlayerOptionsUI { get => playerOptionsUI; }
+    public TextMeshProUGUI DialogueLine { get => dialogueLine; }
+    public GameObject DialogueOptionsPrefab { get => dialogueOptionsPrefab; }
+    public GameObject DialogueOptions { get => dialogueOptions; }
+    public GameObject DialogueUI { get => dialogueUI; }
 }
