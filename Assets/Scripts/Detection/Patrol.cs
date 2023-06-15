@@ -10,7 +10,24 @@ public class Patrol : MonoBehaviour
 
     void Start()
     {
+        FindNearestPoint();
         StartCoroutine(PatrolPath());
+    }
+
+    void FindNearestPoint()
+    {
+        float distance = float.MaxValue;
+        for (int i = 0; i < path.Length; i++)
+        {
+            float newDistance = (path[i].position - transform.position).magnitude;
+            if (newDistance < distance)
+            {
+                distance = newDistance;
+                currentPos = i;
+            }
+        }
+        Quaternion targetRotation = Quaternion.LookRotation(Vector3.forward, path[currentPos].transform.position - transform.position);
+        transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRotation, 360);
     }
 
     IEnumerator PatrolPath()

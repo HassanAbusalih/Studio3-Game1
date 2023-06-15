@@ -1,6 +1,6 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
-using TMPro;
 using UnityEngine;
 
 public class LineOfSight : MonoBehaviour
@@ -15,6 +15,7 @@ public class LineOfSight : MonoBehaviour
     MeshFilter viewCone;
     float time;
     bool caught;
+    public static event Action CaughtPlayer;
 
     void Start()
     {
@@ -28,8 +29,9 @@ public class LineOfSight : MonoBehaviour
     void Update()
     {
         time += Time.deltaTime;
-        if (time > 0.1f && !caught)
+        if (time > 0.05f && !caught)
         {
+            time = 0;
             Detection();
         }
     }
@@ -52,7 +54,8 @@ public class LineOfSight : MonoBehaviour
                 vertices[i] = transform.InverseTransformPoint(hit.point);
                 if (hit.transform.TryGetComponent(out PlayerMovement player))
                 {
-                    //caught = true;
+                    caught = true;
+                    CaughtPlayer?.Invoke();
                 }
             }
             else

@@ -12,11 +12,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7f59483685c7e614d892562820a20c5d, type: 3}
   m_Name: Test
   m_EditorClassIdentifier: 
-  introLines: {fileID: 11400000, guid: 2bec665918a154344a82e3de53e5b17e, type: 2}
+  introLines: {fileID: 11400000, guid: a29b8130985eced46867154a0653ffce, type: 2}
   dialogueOptions:
-  - playerLine: 
-    npcDialogue: {fileID: 11400000, guid: 2bec665918a154344a82e3de53e5b17e, type: 2}
-  - playerLine: 
-    npcDialogue: {fileID: 11400000, guid: 2bec665918a154344a82e3de53e5b17e, type: 2}
-  - playerLine: 
-    npcDialogue: {fileID: 11400000, guid: 2bec665918a154344a82e3de53e5b17e, type: 2}
+  - playerLine: Is it though?
+    npcDialogue: {fileID: 11400000, guid: 1155c65fcfeffc94088000f7bff65c7a, type: 2}
+  - playerLine: Where should I go?
+    npcDialogue: {fileID: 11400000, guid: bf8cb49ee094cb2488fa7006f063dde1, type: 2}
+  endDialogue:
+    playerLine: Okay, bye.
+    npcDialogue: {fileID: 11400000, guid: eea8c2b855d6c6246b1a9e7b6c0e84fb, type: 2}

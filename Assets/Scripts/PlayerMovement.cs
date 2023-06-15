@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -8,19 +9,44 @@ public class PlayerMovement : MonoBehaviour
 {
     [SerializeField] float moveSpeed = 5f;
     Vector2 direction;
-    float mouseX;
-    float mouseY;
     Rigidbody2D rb;
+    bool active;
 
     void Start()
     {
+        active = true;
         rb = GetComponent<Rigidbody2D>();
+    }
+
+    private void OnEnable()
+    {
+        NPCDialogue.dialogueStarted += DialogueStarted;
+        NPCDialogue.dialogueEnded += DialogueEnded;
+    }
+
+    private void OnDisable()
+    {
+        NPCDialogue.dialogueStarted -= DialogueStarted;
+        NPCDialogue.dialogueEnded -= DialogueEnded;
+    }
+
+    private void DialogueEnded()
+    {
+        active = true;
+    }
+
+    private void DialogueStarted()
+    {
+        active = false;
     }
 
     void FixedUpdate()
     {
-        Move();
-        LookAtMouse();
+        if (active)
+        {
+            Move();
+            LookAtMouse();
+        }
     }
 
     private void LookAtMouse()
