@@ -2,29 +2,46 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class AStar : MonoBehaviour
+public class AStar 
 {
     Grid grid;
     List<Node> openList = new List<Node>();
     List<Node> closedList = new List<Node>();
     List<Node> neighbors = new List<Node>();
+    Node end;
     Node currentNode;
 
-    void Start()
+    public List<Vector3> GetPath(Node start, Node end, Grid grid)
     {
-        grid = FindObjectOfType<Grid>();
-    }
-
-    List<Vector3> FindPath(Node start, Node end)
-    {
-        currentNode = start;
-        while (currentNode != end)
+        this.grid = grid;
+        this.end = end;
+        openList.Add(start);
+        while (end.parent == null)
         {
+            openList.Sort();
+            currentNode = openList[0];
+            openList.Remove(currentNode);
             AddNeighbors(currentNode);
-
+            foreach (Node neighbor in neighbors)
+            {
+                if (!openList.Contains(neighbor))
+                {
+                    openList.Add(neighbor);
+                }
+            }
+            neighbors.Clear();
         }
+        openList.Clear();
+
         List<Vector3> path = new List<Vector3>();
-        //when looping through the parents, add to path
+        currentNode = end;
+        while (currentNode != start)
+        {
+            path.Add(currentNode.WorldPos);
+            currentNode = currentNode.parent;
+        }
+        path.Add(currentNode.WorldPos);
+        path.Reverse();
         return path;
     }
 
@@ -47,6 +64,21 @@ public class AStar : MonoBehaviour
                     y++;
                 }
                 Node node = grid.GetNode(x, y);
+                if (!node.walkable || closedList.Contains(node))
+                {
+                    continue;
+                }
+                float deltaX = x - currentNode.GridPos.x - 1;
+                float deltaY = y - currentNode.GridPos.y - 1;
+                float newGCost = currentNode.Gcost + Mathf.Sqrt(deltaX * deltaX + deltaY * deltaY);
+                if (node.Gcost == 0 || node.Gcost > newGCost)
+                {
+                    node.Gcost = newGCost;
+                    float straight = Mathf.Abs(x - y);
+                    float diagonal = (Mathf.Max(x, y) - straight) * Mathf.Sqrt(2);
+                    node.Hcost = diagonal + straight;
+                    node.parent = currentNode;
+                }
                 neighbors.Add(node);
             }
         }

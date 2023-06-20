@@ -27,12 +27,7 @@ public class LineOfSight : MonoBehaviour
 
     void Update()
     {
-        time += Time.deltaTime;
-        if (time > 0.05f && !caught)
-        {
-            time = 0;
-            Detection();
-        }
+        Detection();
     }
 
     void Detection()
