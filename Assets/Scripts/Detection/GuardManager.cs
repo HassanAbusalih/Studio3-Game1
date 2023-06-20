@@ -2,8 +2,11 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Patrol : MonoBehaviour
+public class GuardManager : MonoBehaviour
 {
+    enum GuardState { Patrol, Search, Chase }
+    GuardState state = GuardState.Patrol;
+    Coroutine currentAction;
     [SerializeField] Transform[] path;
     int currentPos;
     [SerializeField] float moveSpeed;
@@ -11,9 +14,30 @@ public class Patrol : MonoBehaviour
     void Start()
     {
         FindNearestPoint();
-        StartCoroutine(PatrolPath());
+        currentAction = StartCoroutine(PatrolPath());
     }
 
+    void Update()
+    {
+        switch (state)
+        {
+            case GuardState.Patrol:
+                if (currentAction != null)
+                {
+                    break;
+                }
+                currentAction = StartCoroutine(PatrolPath());
+                break;
+            case GuardState.Search:
+                //Select random points around search location (either the player's last seen position, or sound)
+                break;
+            case GuardState.Chase:
+                //Move towards the player
+                break;
+        }
+    }
+
+    //Needs changing later after A* is implemented.
     void FindNearestPoint()
     {
         float distance = float.MaxValue;
@@ -44,14 +68,14 @@ public class Patrol : MonoBehaviour
                 currentPos++;
                 currentPos %= path.Length;
                 Quaternion targetRotation = Quaternion.LookRotation(Vector3.forward, path[currentPos].transform.position - transform.position);
-                Vector3 crossProduct = Vector3.Cross(transform.forward, path[currentPos].transform.position - transform.position);
-                bool rotatedLeft = crossProduct.y < 0;
+                float angle = Vector2.SignedAngle(transform.up, (path[currentPos].transform.position - transform.position).normalized);
+                bool rotatedLeft = angle > 0;
                 while (Quaternion.Angle(transform.rotation, targetRotation) > 0.1f)
                 {
                     transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRotation, 40 * Time.deltaTime);
                     yield return null;
                 }
-                yield return Scan(gameObject, 90, 40, !rotatedLeft);
+                yield return Scan(gameObject, 90, 40, rotatedLeft);
             }
             yield return null;
         }
@@ -60,8 +84,8 @@ public class Patrol : MonoBehaviour
     IEnumerator Scan(GameObject gameObject, float fov, float rotationSpeed, bool rotation)
     {
         Quaternion startRotation = gameObject.transform.rotation;
-        Quaternion left = Quaternion.Euler(gameObject.transform.eulerAngles - new Vector3(0, 0, fov / 2));
-        Quaternion right = Quaternion.Euler(gameObject.transform.eulerAngles + new Vector3(0, 0, fov / 2));
+        Quaternion left = Quaternion.Euler(gameObject.transform.eulerAngles + new Vector3(0, 0, fov / 2));
+        Quaternion right = Quaternion.Euler(gameObject.transform.eulerAngles - new Vector3(0, 0, fov / 2));
         if (rotation)
         {
             yield return RotationOrder(gameObject, rotationSpeed, left, right);

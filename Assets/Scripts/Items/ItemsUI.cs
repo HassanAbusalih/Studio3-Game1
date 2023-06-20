@@ -41,7 +41,7 @@ public class ItemsUI : MonoBehaviour
         {
             if (itemUI.text == item.ItemName)
             {
-                itemUI.text = item.ItemName + " (Collected)";
+                itemUI.text = "<s>" + item.ItemName + "</s>";
                 break;
             }
         }

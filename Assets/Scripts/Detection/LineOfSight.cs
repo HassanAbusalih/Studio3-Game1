@@ -23,7 +23,6 @@ public class LineOfSight : MonoBehaviour
         mesh = new();
         vertices = new Vector3[rayCount + 1];
         triangles = new int[3 * (rayCount - 1)];
-        uv = new Vector2[vertices.Length];
     }
 
     void Update()
@@ -39,11 +38,6 @@ public class LineOfSight : MonoBehaviour
     void Detection()
     {
         float angle = 90 - fov / 2;
-        angle %= 360;
-        if (angle < 0)
-        {
-            angle += 360;
-        }
         vertices[0] = Vector3.zero;
         for (int i = 1; i <= rayCount; i++)
         {
@@ -72,7 +66,6 @@ public class LineOfSight : MonoBehaviour
         }
         mesh.vertices = vertices;
         mesh.triangles = triangles;
-        mesh.uv = uv;
         viewCone.mesh = mesh;
     }
 }
