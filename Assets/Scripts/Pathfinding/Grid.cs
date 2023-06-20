@@ -24,8 +24,8 @@ public class Grid : MonoBehaviour
             for (int x = 0; x < gridX; x++)
             {
                 int currentNode = y * gridX + x;
-                Vector3 gridPos = new Vector3(y , x);
-                Vector3 worldPos = new Vector3(worldX * (0.5f + y - gridX / 2f), worldY * (0.5f + x - gridY / 2f));
+                Vector3 gridPos = new Vector3(x , y);
+                Vector3 worldPos = new Vector3(worldX * (0.5f + x - gridX / 2f), worldY * (0.5f + y - gridY / 2f));
                 grid[currentNode] = new Node(gridPos, worldPos);
                 grid[currentNode].walkable = Physics2D.OverlapBox(worldPos, new Vector2(worldX, worldY), 0) == null;
             }
@@ -35,6 +35,13 @@ public class Grid : MonoBehaviour
     public Node GetNode(int x, int y)
     {
         return grid[y * gridX + x];
+    }
+
+    public Node WorldToGrid(Vector3 worldPos)
+    {
+        int x = Mathf.FloorToInt((worldPos.x / worldX) + (gridX / 2f) - 0.5f);
+        int y = Mathf.FloorToInt((worldPos.y / worldY) + (gridY / 2f) - 0.5f);
+        return GetNode(x, y);
     }
 
     void OnDrawGizmos()

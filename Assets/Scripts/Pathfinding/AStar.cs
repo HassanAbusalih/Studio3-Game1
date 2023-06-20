@@ -5,22 +5,26 @@ using UnityEngine;
 public class AStar 
 {
     Grid grid;
-    List<Node> openList = new List<Node>();
-    List<Node> closedList = new List<Node>();
-    List<Node> neighbors = new List<Node>();
-    Node end;
+    List<Node> openList = new();
+    List<Node> neighbors = new();
     Node currentNode;
+    Node end;
+    Node start;
+    int version;
 
-    public List<Vector3> GetPath(Node start, Node end, Grid grid)
+    public List<Vector3> GetPath(Vector3 startPos, Vector3 endPos, Grid grid)
     {
         this.grid = grid;
-        this.end = end;
+        start = grid.WorldToGrid(startPos);
+        end = grid.WorldToGrid(endPos);
         openList.Add(start);
+        version++;
         while (end.parent == null)
         {
             openList.Sort();
             currentNode = openList[0];
-            openList.Remove(currentNode);
+            currentNode.closed = true;
+            openList.RemoveAt(0);
             AddNeighbors(currentNode);
             foreach (Node neighbor in neighbors)
             {
@@ -30,10 +34,13 @@ public class AStar
                 }
             }
             neighbors.Clear();
+            if (openList.Count == 0)
+            {
+                return null;
+            }
         }
         openList.Clear();
-
-        List<Vector3> path = new List<Vector3>();
+        List<Vector3> path = new();
         currentNode = end;
         while (currentNode != start)
         {
@@ -49,13 +56,13 @@ public class AStar
     {
         for (int x = (int)currentNode.GridPos.x - 1; x < (int)currentNode.GridPos.x + 2; x++)
         {
-            if (x < 0 || x > grid.gridX)
+            if (x < 0 || x >= grid.gridX)
             {
                 continue;
             }
             for (int y = (int)currentNode.GridPos.y - 1; y < (int)currentNode.GridPos.y + 2; y++)
             {
-                if (y < 0 || y > grid.gridY)
+                if (y < 0 || y >= grid.gridY)
                 {
                     continue;
                 }
@@ -64,18 +71,24 @@ public class AStar
                     y++;
                 }
                 Node node = grid.GetNode(x, y);
-                if (!node.walkable || closedList.Contains(node))
+                if (node.version != version)
+                {
+                    node.Reset(version);
+                }
+                if (!node.walkable || node.closed)
                 {
                     continue;
                 }
-                float deltaX = x - currentNode.GridPos.x - 1;
-                float deltaY = y - currentNode.GridPos.y - 1;
-                float newGCost = currentNode.Gcost + Mathf.Sqrt(deltaX * deltaX + deltaY * deltaY);
+                float relativeX = x - currentNode.GridPos.x;
+                float relativeY = y - currentNode.GridPos.y;
+                float newGCost = currentNode.Gcost + Mathf.Sqrt(relativeX * relativeX + relativeY * relativeY);
                 if (node.Gcost == 0 || node.Gcost > newGCost)
                 {
                     node.Gcost = newGCost;
-                    float straight = Mathf.Abs(x - y);
-                    float diagonal = (Mathf.Max(x, y) - straight) * Mathf.Sqrt(2);
+                    float deltaX = Mathf.Abs(x - end.GridPos.x);
+                    float deltaY = Mathf.Abs(y - end.GridPos.y);
+                    float diagonal = Mathf.Sqrt(2) * Mathf.Min(deltaX, deltaY);
+                    float straight = Mathf.Abs(deltaX - deltaY);
                     node.Hcost = diagonal + straight;
                     node.parent = currentNode;
                 }

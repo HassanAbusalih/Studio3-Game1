@@ -12,6 +12,8 @@ public class Node : IComparable
     Vector3 worldPos;
     public Node parent;
     public bool walkable;
+    public bool closed;
+    public int version = 0;
 
     public Node(Vector3 grid, Vector3 world)
     {
@@ -22,6 +24,14 @@ public class Node : IComparable
     public Vector3 GridPos { get => gridPos; }
     public Vector3 WorldPos { get => worldPos; }
 
+    public void Reset(int version)
+    {
+        Gcost = 0;
+        Hcost = 0;
+        parent = null;
+        closed = false;
+        this.version = version;
+    }
     public int CompareTo(object obj)
     {
         Node node = obj as Node;
