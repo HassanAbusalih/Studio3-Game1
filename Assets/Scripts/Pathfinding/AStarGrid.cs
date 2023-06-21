@@ -1,9 +1,10 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
-public class Grid : MonoBehaviour
+public class AStarGrid : MonoBehaviour
 {
     public int gridX;
     public int gridY;
@@ -34,13 +35,20 @@ public class Grid : MonoBehaviour
 
     public Node GetNode(int x, int y)
     {
-        return grid[y * gridX + x];
+        int num = y * gridX + x;
+        if (num > grid.Length)
+        {
+            Debug.Log($"{num} is invalid, at x: {x} and y: {y}");
+        }
+        return grid[num];
     }
 
     public Node WorldToGrid(Vector3 worldPos)
     {
         int x = Mathf.FloorToInt((worldPos.x / worldX) + (gridX / 2f) - 0.5f);
         int y = Mathf.FloorToInt((worldPos.y / worldY) + (gridY / 2f) - 0.5f);
+        x = Mathf.Clamp(x, 0, gridX - 1);
+        y = Mathf.Clamp(y, 0, gridY - 1);
         return GetNode(x, y);
     }
 

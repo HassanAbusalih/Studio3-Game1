@@ -1,10 +1,16 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Analytics;
 
 public class AStar 
 {
-    Grid grid;
+    public AStar(AStarGrid grid)
+    {
+        this.grid = grid;
+    }
+
+    AStarGrid grid;
     List<Node> openList = new();
     List<Node> neighbors = new();
     Node currentNode;
@@ -12,11 +18,13 @@ public class AStar
     Node start;
     int version;
 
-    public List<Vector3> GetPath(Vector3 startPos, Vector3 endPos, Grid grid)
+
+    public List<Vector3> GetPath(Vector3 startPos, Vector3 endPos)
     {
-        this.grid = grid;
         start = grid.WorldToGrid(startPos);
         end = grid.WorldToGrid(endPos);
+        start.Reset(version);
+        end.Reset(version);
         openList.Add(start);
         version++;
         while (end.parent == null)
@@ -56,19 +64,19 @@ public class AStar
     {
         for (int x = (int)currentNode.GridPos.x - 1; x < (int)currentNode.GridPos.x + 2; x++)
         {
-            if (x < 0 || x >= grid.gridX)
+            if (x < 0 || x >= grid.gridX - 1)
             {
                 continue;
             }
             for (int y = (int)currentNode.GridPos.y - 1; y < (int)currentNode.GridPos.y + 2; y++)
             {
-                if (y < 0 || y >= grid.gridY)
+                if (y < 0 || y >= grid.gridY - 1)
                 {
                     continue;
                 }
                 if (x == (int)currentNode.GridPos.x && y == (int)currentNode.GridPos.y)
                 {
-                    y++;
+                    continue;
                 }
                 Node node = grid.GetNode(x, y);
                 if (node.version != version)
@@ -90,6 +98,7 @@ public class AStar
                     float diagonal = Mathf.Sqrt(2) * Mathf.Min(deltaX, deltaY);
                     float straight = Mathf.Abs(deltaX - deltaY);
                     node.Hcost = diagonal + straight;
+                    //node.Hcost = Mathf.Abs(x - end.GridPos.x) + Mathf.Abs(y - end.GridPos.y);
                     node.parent = currentNode;
                 }
                 neighbors.Add(node);

@@ -7,12 +7,30 @@ public class GuardManager : MonoBehaviour
     enum GuardState { Patrol, Search, Chase }
     GuardState state = GuardState.Patrol;
     Coroutine currentAction;
-    [SerializeField] Transform[] path;
+    [SerializeField] Transform[] patrolPath;
+    List<Vector3> aStarPath = new();
+    AStarGrid grid;
+    AStar aStar;
     int currentPos;
+    Vector3 targetPos;
     [SerializeField] float moveSpeed;
+
+    private void OnDrawGizmos()
+    {
+        if (aStarPath != null) 
+        {
+            foreach (var path in aStarPath)
+            {
+                Gizmos.color = Color.yellow;
+                Gizmos.DrawCube(path, Vector3.one);
+            }
+        }
+    }
 
     void Start()
     {
+        grid = FindObjectOfType<AStarGrid>();
+        aStar = new(grid);
         FindNearestPoint();
         currentAction = StartCoroutine(PatrolPath());
     }
@@ -37,20 +55,21 @@ public class GuardManager : MonoBehaviour
         }
     }
 
-    //Needs changing later after A* is implemented.
     void FindNearestPoint()
     {
         float distance = float.MaxValue;
-        for (int i = 0; i < path.Length; i++)
+        for (int i = 0; i < patrolPath.Length; i++)
         {
-            float newDistance = (path[i].position - transform.position).magnitude;
+            float newDistance = (patrolPath[i].position - transform.position).magnitude;
             if (newDistance < distance)
             {
                 distance = newDistance;
                 currentPos = i;
             }
         }
-        Quaternion targetRotation = Quaternion.LookRotation(Vector3.forward, path[currentPos].transform.position - transform.position);
+        targetPos = patrolPath[currentPos].position;
+        aStarPath = aStar.GetPath(transform.position, targetPos);
+        Quaternion targetRotation = Quaternion.LookRotation(Vector3.forward, patrolPath[currentPos].transform.position - transform.position);
         transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRotation, 360);
     }
 
@@ -58,17 +77,26 @@ public class GuardManager : MonoBehaviour
     {
         while (true)
         {
-            float distance = (path[currentPos].transform.position - transform.position).magnitude;
-            if (distance > 0.1f)
+            if (aStarPath.Count > 0)
             {
-                transform.position = Vector3.MoveTowards(transform.position, path[currentPos].transform.position, moveSpeed * Time.deltaTime);
+                Vector3 targetPoint = aStarPath[0];
+                if ((targetPoint - transform.position).magnitude > 0.1f)
+                {
+                    transform.position = Vector3.MoveTowards(transform.position, targetPoint, moveSpeed * Time.deltaTime);
+                }
+                else
+                {
+                    aStarPath.RemoveAt(0);
+                }
             }
-            else
-            {
+            else 
+            { 
                 currentPos++;
-                currentPos %= path.Length;
-                Quaternion targetRotation = Quaternion.LookRotation(Vector3.forward, path[currentPos].transform.position - transform.position);
-                float angle = Vector2.SignedAngle(transform.up, (path[currentPos].transform.position - transform.position).normalized);
+                currentPos %= patrolPath.Length;
+                targetPos = patrolPath[currentPos].position;
+                aStarPath = aStar.GetPath(transform.position, targetPos);
+                Quaternion targetRotation = Quaternion.LookRotation(Vector3.forward, targetPos - transform.position);
+                float angle = Vector2.SignedAngle(transform.up, (targetPos - transform.position).normalized);
                 bool rotatedLeft = angle > 0;
                 while (Quaternion.Angle(transform.rotation, targetRotation) > 0.1f)
                 {

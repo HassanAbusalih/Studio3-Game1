@@ -41,11 +41,11 @@ public class Node : IComparable
         }
         if (Fcost > node.Fcost)
         {
-            return -1;
+            return 1;
         }
         else if (Fcost < node.Fcost)
         {
-            return 1;
+            return -1;
         }
         return 0;
     }
