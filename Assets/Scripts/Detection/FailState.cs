@@ -1,11 +1,14 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
 public class FailState : MonoBehaviour
 {
     [SerializeField] GameObject gameOverPanel;
+
+    private void Awake()
+    {
+        Time.timeScale = 1.0f;
+    }
 
     private void OnEnable()
     {

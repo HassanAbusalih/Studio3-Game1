@@ -1,6 +1,3 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody2D))]
@@ -45,15 +42,9 @@ public class PlayerMovement : MonoBehaviour
         if (active)
         {
             Move();
-            LookAtMouse();
         }
     }
 
-    private void LookAtMouse()
-    {
-        Vector2 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-        transform.up = mousePos - (Vector2)transform.position;
-    }
 
     private void Move()
     {

@@ -14,6 +14,8 @@ public class GuardManager : MonoBehaviour
     int currentPos;
     Vector3 targetPos;
     [SerializeField] float moveSpeed;
+    [SerializeField] float rotationSpeed;
+    [SerializeField] float hearingDistance;
 
     private void OnDrawGizmos()
     {
@@ -31,7 +33,6 @@ public class GuardManager : MonoBehaviour
     {
         grid = FindObjectOfType<AStarGrid>();
         aStar = new(grid);
-        FindNearestPoint();
         currentAction = StartCoroutine(PatrolPath());
     }
 
@@ -48,10 +49,53 @@ public class GuardManager : MonoBehaviour
                 break;
             case GuardState.Search:
                 //Select random points around search location (either the player's last seen position, or sound)
+                if (currentAction != null)
+                {
+                    break;
+                }
+                currentAction = StartCoroutine(PatrolPath());
                 break;
             case GuardState.Chase:
                 //Move towards the player
                 break;
+        }
+    }
+
+    void SoundHeard(Vector2 position)
+    {
+        if (Vector2.Distance(position, transform.position) < hearingDistance) 
+        {
+            state = GuardState.Search;
+            StopCoroutine(currentAction);
+            targetPos = position;
+            aStarPath = aStar.GetPath(transform.position, targetPos);
+            currentAction = StartCoroutine(SearchArea());
+        }
+    }
+
+    IEnumerator SearchArea()
+    {
+        yield return Navigate();
+        yield return LookAround();
+        state = GuardState.Patrol;
+        currentAction = StartCoroutine(PatrolPath());
+    }
+
+    IEnumerator PatrolPath()
+    {
+        FindNearestPoint();
+        while (true)
+        {
+            yield return Navigate();
+            if (aStarPath != null)
+            { 
+                currentPos++;
+                currentPos %= patrolPath.Length;
+                targetPos = patrolPath[currentPos].position;
+                aStarPath = aStar.GetPath(transform.position, targetPos);
+                yield return LookAround();
+            }
+            yield return null;
         }
     }
 
@@ -73,40 +117,42 @@ public class GuardManager : MonoBehaviour
         transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRotation, 360);
     }
 
-    IEnumerator PatrolPath()
+    IEnumerator Navigate()
     {
-        while (true)
+        if (aStarPath == null)
         {
-            if (aStarPath.Count > 0)
+            aStarPath = aStar.GetPath(transform.position, targetPos);
+            yield return null;
+        }
+        while (aStarPath != null && aStarPath.Count > 0)
+        {
+            Vector3 targetPoint = aStarPath[0];
+            if ((targetPoint - transform.position).magnitude > 0.1f)
             {
-                Vector3 targetPoint = aStarPath[0];
-                if ((targetPoint - transform.position).magnitude > 0.1f)
-                {
-                    transform.position = Vector3.MoveTowards(transform.position, targetPoint, moveSpeed * Time.deltaTime);
-                }
-                else
-                {
-                    aStarPath.RemoveAt(0);
-                }
+                Quaternion targetRotation = Quaternion.LookRotation(transform.position - targetPoint, Vector3.forward);
+                targetRotation = new Quaternion(0, 0, targetRotation.z, targetRotation.w);
+                transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRotation, 10 * rotationSpeed * Time.deltaTime);
+                transform.position = Vector3.MoveTowards(transform.position, targetPoint, moveSpeed * Time.deltaTime);
             }
-            else 
-            { 
-                currentPos++;
-                currentPos %= patrolPath.Length;
-                targetPos = patrolPath[currentPos].position;
-                aStarPath = aStar.GetPath(transform.position, targetPos);
-                Quaternion targetRotation = Quaternion.LookRotation(Vector3.forward, targetPos - transform.position);
-                float angle = Vector2.SignedAngle(transform.up, (targetPos - transform.position).normalized);
-                bool rotatedLeft = angle > 0;
-                while (Quaternion.Angle(transform.rotation, targetRotation) > 0.1f)
-                {
-                    transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRotation, 40 * Time.deltaTime);
-                    yield return null;
-                }
-                yield return Scan(gameObject, 90, 40, rotatedLeft);
+            else
+            {
+                aStarPath.RemoveAt(0);
             }
             yield return null;
         }
+    }
+
+    IEnumerator LookAround()
+    {
+        Quaternion targetRotation = Quaternion.LookRotation(Vector3.forward, targetPos - transform.position);
+        float angle = Vector2.SignedAngle(transform.up, (targetPos - transform.position).normalized);
+        bool rotatedLeft = angle > 0;
+        while (Quaternion.Angle(transform.rotation, targetRotation) > 0.1f)
+        {
+            transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
+            yield return null;
+        }
+        yield return Scan(gameObject, 90, rotationSpeed, rotatedLeft);
     }
 
     IEnumerator Scan(GameObject gameObject, float fov, float rotationSpeed, bool rotation)
@@ -141,5 +187,15 @@ public class GuardManager : MonoBehaviour
             gameObject.transform.rotation = Quaternion.RotateTowards(gameObject.transform.rotation, rotation2, rotationSpeed * Time.deltaTime);
             yield return null;
         }
+    }
+
+    private void OnEnable()
+    {
+        Yeet.SoundGenerated += SoundHeard;
+    }
+
+    private void OnDisable()
+    {
+        Yeet.SoundGenerated -= SoundHeard;
     }
 }

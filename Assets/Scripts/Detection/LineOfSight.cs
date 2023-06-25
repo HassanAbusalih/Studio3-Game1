@@ -1,6 +1,4 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class LineOfSight : MonoBehaviour
@@ -10,11 +8,9 @@ public class LineOfSight : MonoBehaviour
     [SerializeField] float viewDistance;
     Vector3[] vertices;
     int[] triangles;
-    Vector2[] uv;
     Mesh mesh;
     MeshFilter viewCone;
-    float time;
-    bool caught;
+    //bool caught;
     public static event Action CaughtPlayer;
 
     void Start()
@@ -43,7 +39,7 @@ public class LineOfSight : MonoBehaviour
                 vertices[i] = transform.InverseTransformPoint(hit.point);
                 if (hit.transform.TryGetComponent(out PlayerMovement player))
                 {
-                    caught = true;
+                    //caught = true;
                     CaughtPlayer?.Invoke();
                 }
             }
