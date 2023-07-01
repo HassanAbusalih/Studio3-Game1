@@ -25,11 +25,11 @@ public class AStar
         end = grid.WorldToGrid(endPos);
         if (!start.walkable)
         {
-            start = grid.GetNearestWalkable(start);
+            start = grid.GetNearestWalkable(start, startPos);
         }
         if (!end.walkable)
         {
-            end = grid.GetNearestWalkable(end);
+            end = grid.GetNearestWalkable(end, endPos);
         }
         start.Reset(version);
         end.Reset(version);

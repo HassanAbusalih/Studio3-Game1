@@ -51,56 +51,45 @@ public class AStarGrid : MonoBehaviour
         return GetNode(x, y);
     }
 
-    public Node GetNearestWalkable(Node node)
+    public Node GetNearestWalkable(Node node, Vector2 actualPos)
     {
-        Queue<Node> queue = new();
-        HashSet<Node> visited = new();
-        queue.Enqueue(node);
-        visited.Add(node);
-        while (queue.Count > 0)
+        int size = 4;
+        Node closest = null;
+        float minDistance = float.MaxValue;
+        for (int x = Mathf.Max(0, (int)node.GridPos.x - size / 2); x <= Mathf.Min(gridX - 1, (int)node.GridPos.x + size / 2); x++)
         {
-            Node newNode = queue.Dequeue();
-            if (newNode.walkable)
+            for (int y = Mathf.Max(0, (int)node.GridPos.y - size / 2); y <= Mathf.Min(gridY - 1, (int)node.GridPos.y + size / 2); y++)
             {
-                return newNode;
-            }
-            for (int x = -1; x <= 1; x++)
-            {
-                for (int y = -1; y <= 1; y++)
+                Node newNode = GetNode(x, y);
+                if (newNode.walkable)
                 {
-                    if (x == 0 && y == 0)
+                    float distance = Vector2.Distance(actualPos, newNode.WorldPos);
+                    if (distance < minDistance)
                     {
-                        continue;
-                    }
-                    int actualX = Mathf.Clamp((int)newNode.GridPos.x + x, 0, gridX - 1);
-                    int actualY = Mathf.Clamp((int)newNode.GridPos.y + y, 0, gridY - 1);
-                    Node neighbor = GetNode(actualX, actualY);
-                    if (!visited.Contains(neighbor))
-                    {
-                        queue.Enqueue(neighbor);
-                        visited.Add(neighbor);
+                        closest = newNode;
+                        minDistance = distance;
                     }
                 }
             }
         }
-        return null;
+        return closest;
     }
 
-    /*void OnDrawGizmos()
+    void OnDrawGizmos()
     {
         if (grid == null) { return; }
         foreach (Node node in grid)
         {
             if (node.walkable)
             {
-                Gizmos.color = Color.green;
+                Gizmos.color = new(0, 1, 0, 0.1f);
                 Gizmos.DrawWireCube(node.WorldPos, new Vector3(cellX, cellY));
             }
             else
             {
-                Gizmos.color = Color.red;
+                Gizmos.color = new(1, 0, 0, 0.2f);
                 Gizmos.DrawWireCube(node.WorldPos, new Vector3(cellX, cellY));
             }
         }
-    }*/
+    }
 }

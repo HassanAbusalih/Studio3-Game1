@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading;
 using UnityEngine;
 
 public class GuardManager : MonoBehaviour
@@ -7,12 +8,15 @@ public class GuardManager : MonoBehaviour
     enum GuardState { Patrol, Search, Chase }
     GuardState state = GuardState.Patrol;
     Coroutine currentAction;
+    Coroutine navigation;
+    PlayerMovement player;
     [SerializeField] Transform[] patrolPath;
     List<Vector3> aStarPath = new();
     AStarGrid grid;
     AStar aStar;
     int currentPos;
     Vector3 targetPos;
+    float timer = 0;
     [SerializeField] float moveSpeed;
     [SerializeField] float rotationSpeed;
     [SerializeField] float hearingDistance;
@@ -27,36 +31,64 @@ public class GuardManager : MonoBehaviour
                 Gizmos.DrawCube(path, Vector3.one);
             }
         }
+
+        foreach (var point in patrolPath)
+        {
+            Gizmos.color = Color.green;
+            Gizmos.DrawSphere(point.position, 0.25f);
+            if (grid != null)
+            {
+                Gizmos.color = Color.red;
+                Gizmos.DrawSphere(grid.GetNearestWalkable(grid.WorldToGrid(point.position), point.position).WorldPos, 0.25f);
+            }
+        }
     }
 
     void Start()
     {
         grid = FindObjectOfType<AStarGrid>();
+        player = FindObjectOfType<PlayerMovement>();
         aStar = new(grid);
         currentAction = StartCoroutine(PatrolPath());
     }
 
     void Update()
     {
+        if (state == GuardState.Chase)
+        {
+            timer += Time.deltaTime;
+            if (timer > 0.25f)
+            {
+                timer = 0;
+                if (navigation != null)
+                {
+                    StopCoroutine(navigation);
+                    navigation = null;
+                }
+            }
+        }
+        if (state != GuardState.Chase && TacticalVisor())
+        {
+            StopCoroutine(currentAction);
+            state = GuardState.Chase;
+            currentAction = StartCoroutine(Chase());
+        }
+        if (currentAction != null)
+        {
+            return;
+        }
         switch (state)
         {
             case GuardState.Patrol:
-                if (currentAction != null)
-                {
-                    break;
-                }
                 currentAction = StartCoroutine(PatrolPath());
                 break;
             case GuardState.Search:
-                //Select random points around search location (either the player's last seen position, or sound)
-                if (currentAction != null)
-                {
-                    break;
-                }
+                state = GuardState.Patrol;
                 currentAction = StartCoroutine(PatrolPath());
                 break;
             case GuardState.Chase:
-                //Move towards the player
+                state = GuardState.Search;
+                currentAction = StartCoroutine(SearchArea());
                 break;
         }
     }
@@ -73,18 +105,60 @@ public class GuardManager : MonoBehaviour
         }
     }
 
+    bool TacticalVisor()
+    {
+        Vector2 direction = player.transform.position - transform.position;
+        if (direction.magnitude > hearingDistance)
+        {
+            return false;
+        }
+        float angle = Vector2.Angle(transform.forward, direction);
+        if (angle > 45)
+        {
+            return false;
+        }
+        RaycastHit2D hit = Physics2D.Raycast(transform.position, direction, hearingDistance);
+        if (hit && hit.transform != player.transform)
+        {
+            if (state == GuardState.Chase)
+            {
+                targetPos = grid.WorldToGrid(hit.transform.position).WorldPos;
+                return false;
+            }
+            return false;
+        }
+        targetPos = player.transform.position;
+        return true;
+    }
+
     IEnumerator SearchArea()
     {
         yield return Navigate();
         yield return LookAround();
-        state = GuardState.Patrol;
-        currentAction = StartCoroutine(PatrolPath());
+        currentAction = null;
+    }
+
+    IEnumerator Chase()
+    {
+        while (state == GuardState.Chase)
+        {
+            navigation = StartCoroutine(Navigate());
+            yield return new WaitUntil(()=> navigation == null);
+            if (!TacticalVisor())
+            {
+                aStarPath = aStar.GetPath(transform.position, targetPos);
+                currentAction = null;
+                yield break;
+            }
+            aStarPath = aStar.GetPath(transform.position, targetPos);
+            yield return null;
+        }
     }
 
     IEnumerator PatrolPath()
     {
         FindNearestPoint();
-        while (true)
+        while (state == GuardState.Patrol)
         {
             yield return Navigate();
             if (aStarPath != null)
@@ -121,6 +195,9 @@ public class GuardManager : MonoBehaviour
     {
         if (aStarPath == null)
         {
+            currentPos++;
+            currentPos %= patrolPath.Length;
+            targetPos = patrolPath[currentPos].position;
             aStarPath = aStar.GetPath(transform.position, targetPos);
             yield return null;
         }
@@ -140,6 +217,7 @@ public class GuardManager : MonoBehaviour
             }
             yield return null;
         }
+        navigation = null;
     }
 
     IEnumerator LookAround()
