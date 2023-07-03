@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Drawing;
 using UnityEngine;
 
 public class AStarGrid : MonoBehaviour
@@ -7,11 +8,13 @@ public class AStarGrid : MonoBehaviour
     public int gridY;
     [SerializeField] float cellX;
     [SerializeField] float cellY;
+    int mask;
     public Node[] grid;
     public int version;
 
     private void Awake()
     {
+        mask = ~(1 << LayerMask.NameToLayer("Projectile"));
         grid = new Node[gridX * gridY];
         GenerateGrid();
     }
@@ -51,19 +54,21 @@ public class AStarGrid : MonoBehaviour
         return GetNode(x, y);
     }
 
-    public Node GetNearestWalkable(Node node, Vector2 actualPos)
+    public Node GetNearestWalkable(Node currentNode, Vector2 worldPos)
     {
-        int size = 4;
+        int size = 6;
         Node closest = null;
         float minDistance = float.MaxValue;
-        for (int x = Mathf.Max(0, (int)node.GridPos.x - size / 2); x <= Mathf.Min(gridX - 1, (int)node.GridPos.x + size / 2); x++)
+        for (int x = -size/2; x <= size/2; x++)
         {
-            for (int y = Mathf.Max(0, (int)node.GridPos.y - size / 2); y <= Mathf.Min(gridY - 1, (int)node.GridPos.y + size / 2); y++)
+            for (int y = -size/2; y <= size/2; y++)
             {
-                Node newNode = GetNode(x, y);
+                int actualX = Mathf.Clamp((int)currentNode.GridPos.x + x, 0, gridX - 1);
+                int actualY = Mathf.Clamp((int)currentNode.GridPos.y + y, 0, gridY - 1);
+                Node newNode = GetNode(actualX, actualY);
                 if (newNode.walkable)
                 {
-                    float distance = Vector2.Distance(actualPos, newNode.WorldPos);
+                    float distance = Vector2.Distance(worldPos, newNode.WorldPos);
                     if (distance < minDistance)
                     {
                         closest = newNode;
@@ -75,7 +80,37 @@ public class AStarGrid : MonoBehaviour
         return closest;
     }
 
-    void OnDrawGizmos()
+    public Vector3 GetRandomNearbyPoint(Vector3 worldPos)
+    {
+        int size = 4;
+        Node currentNode = WorldToGrid(worldPos);
+        List<Node> nodes = new List<Node>();
+        for (int x = -size/2; x <= size/2; x++)
+        {
+            for (int y = -size/2; y <= size/2; y++)
+            {
+                if (x == 0 && y == 0)
+                {
+                    continue;
+                }
+                int actualX = Mathf.Clamp((int)currentNode.GridPos.x + x, 0, gridX - 1);
+                int actualY = Mathf.Clamp((int)currentNode.GridPos.y + y, 0, gridY - 1);
+                Node newNode = GetNode(actualX, actualY);
+                RaycastHit2D hit = Physics2D.Raycast(worldPos, newNode.WorldPos, (worldPos - newNode.WorldPos).magnitude, mask);
+                if (newNode.walkable && hit.collider == null)
+                {
+                    nodes.Add(newNode);
+                }
+            }
+        }
+        if (nodes.Count == 0)
+        {
+            return currentNode.WorldPos;
+        }
+        return nodes[Random.Range(0, nodes.Count)].WorldPos;
+    }
+
+    /*void OnDrawGizmos()
     {
         if (grid == null) { return; }
         foreach (Node node in grid)
@@ -91,5 +126,5 @@ public class AStarGrid : MonoBehaviour
                 Gizmos.DrawWireCube(node.WorldPos, new Vector3(cellX, cellY));
             }
         }
-    }
+    }*/
 }

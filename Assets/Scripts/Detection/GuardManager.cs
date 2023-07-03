@@ -42,6 +42,8 @@ public class GuardManager : MonoBehaviour
                 Gizmos.DrawSphere(grid.GetNearestWalkable(grid.WorldToGrid(point.position), point.position).WorldPos, 0.25f);
             }
         }
+        Gizmos.color = Color.white;
+        Gizmos.DrawWireSphere(transform.position, hearingDistance);
     }
 
     void Start()
@@ -95,7 +97,7 @@ public class GuardManager : MonoBehaviour
 
     void SoundHeard(Vector2 position)
     {
-        if (Vector2.Distance(position, transform.position) < hearingDistance) 
+        if (state != GuardState.Chase && Vector2.Distance(position, transform.position) < hearingDistance) 
         {
             state = GuardState.Search;
             StopCoroutine(currentAction);
@@ -112,7 +114,7 @@ public class GuardManager : MonoBehaviour
         {
             return false;
         }
-        float angle = Vector2.Angle(transform.forward, direction);
+        float angle = Vector2.Angle(transform.up, direction);
         if (angle > 45)
         {
             return false;
@@ -133,8 +135,15 @@ public class GuardManager : MonoBehaviour
 
     IEnumerator SearchArea()
     {
-        yield return Navigate();
-        yield return LookAround();
+        int loops = 0;
+        while (loops < 3)
+        {
+            yield return Navigate();
+            yield return LookAround();
+            Vector3 nearbyPoint = grid.GetRandomNearbyPoint(transform.position);
+            aStarPath = aStar.GetPath(transform.position, nearbyPoint);
+            loops++;
+        }
         currentAction = null;
     }
 
@@ -160,16 +169,15 @@ public class GuardManager : MonoBehaviour
         FindNearestPoint();
         while (state == GuardState.Patrol)
         {
-            yield return Navigate();
-            if (aStarPath != null)
-            { 
+            if (aStarPath == null || aStarPath.Count == 0)
+            {
                 currentPos++;
                 currentPos %= patrolPath.Length;
                 targetPos = patrolPath[currentPos].position;
                 aStarPath = aStar.GetPath(transform.position, targetPos);
-                yield return LookAround();
             }
-            yield return null;
+            yield return Navigate();
+            yield return LookAround();
         }
     }
 
@@ -193,14 +201,6 @@ public class GuardManager : MonoBehaviour
 
     IEnumerator Navigate()
     {
-        if (aStarPath == null)
-        {
-            currentPos++;
-            currentPos %= patrolPath.Length;
-            targetPos = patrolPath[currentPos].position;
-            aStarPath = aStar.GetPath(transform.position, targetPos);
-            yield return null;
-        }
         while (aStarPath != null && aStarPath.Count > 0)
         {
             Vector3 targetPoint = aStarPath[0];
@@ -208,7 +208,7 @@ public class GuardManager : MonoBehaviour
             {
                 Quaternion targetRotation = Quaternion.LookRotation(transform.position - targetPoint, Vector3.forward);
                 targetRotation = new Quaternion(0, 0, targetRotation.z, targetRotation.w);
-                transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRotation, 10 * rotationSpeed * Time.deltaTime);
+                transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, 0.05f * rotationSpeed * Time.deltaTime);
                 transform.position = Vector3.MoveTowards(transform.position, targetPoint, moveSpeed * Time.deltaTime);
             }
             else

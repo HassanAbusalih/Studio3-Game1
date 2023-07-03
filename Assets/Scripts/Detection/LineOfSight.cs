@@ -6,6 +6,7 @@ public class LineOfSight : MonoBehaviour
     [SerializeField] [Range(2, 90)] int rayCount;
     [SerializeField] float fov;
     [SerializeField] float viewDistance;
+    [SerializeField] LayerMask mask;
     Vector3[] vertices;
     int[] triangles;
     Mesh mesh;
@@ -21,7 +22,7 @@ public class LineOfSight : MonoBehaviour
         triangles = new int[3 * (rayCount - 1)];
     }
 
-    void Update()
+    void LateUpdate()
     {
         Detection();
     }
@@ -33,7 +34,7 @@ public class LineOfSight : MonoBehaviour
         for (int i = 1; i <= rayCount; i++)
         {
             Vector3 direction = new Vector2(Mathf.Cos(angle * Mathf.Deg2Rad), Mathf.Sin(angle * Mathf.Deg2Rad));
-            RaycastHit2D hit = Physics2D.Raycast(transform.position, transform.TransformDirection(direction), viewDistance);
+            RaycastHit2D hit = Physics2D.Raycast(transform.position, transform.TransformDirection(direction), viewDistance, mask);
             if (hit.collider != null)
             {
                 vertices[i] = transform.InverseTransformPoint(hit.point);
