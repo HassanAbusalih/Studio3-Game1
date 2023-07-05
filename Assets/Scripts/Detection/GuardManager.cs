@@ -1,22 +1,25 @@
 using System.Collections;
 using System.Collections.Generic;
-using System.Threading;
+using UnityEditor;
 using UnityEngine;
 
 public class GuardManager : MonoBehaviour
 {
-    enum GuardState { Patrol, Search, Chase }
+    enum GuardState { Idle, Patrol, Search, Chase }
     GuardState state = GuardState.Patrol;
     Coroutine currentAction;
     Coroutine navigation;
     PlayerMovement player;
-    [SerializeField] Transform[] patrolPath;
     List<Vector3> aStarPath = new();
     AStarGrid grid;
     AStar aStar;
     int currentPos;
     Vector3 targetPos;
     float timer = 0;
+    [SerializeField] bool idle;
+    Vector3 idlePos;
+    Quaternion idleRot;
+    [SerializeField] Transform[] patrolPath;
     [SerializeField] float moveSpeed;
     [SerializeField] float rotationSpeed;
     [SerializeField] float hearingDistance;
@@ -31,7 +34,6 @@ public class GuardManager : MonoBehaviour
                 Gizmos.DrawCube(path, Vector3.one);
             }
         }
-
         foreach (var point in patrolPath)
         {
             Gizmos.color = Color.green;
@@ -42,8 +44,7 @@ public class GuardManager : MonoBehaviour
                 Gizmos.DrawSphere(grid.GetNearestWalkable(grid.WorldToGrid(point.position), point.position).WorldPos, 0.25f);
             }
         }
-        Gizmos.color = Color.white;
-        Gizmos.DrawWireSphere(transform.position, hearingDistance);
+        Handles.DrawWireDisc(transform.position, transform.forward, hearingDistance);
     }
 
     void Start()
@@ -51,7 +52,17 @@ public class GuardManager : MonoBehaviour
         grid = FindObjectOfType<AStarGrid>();
         player = FindObjectOfType<PlayerMovement>();
         aStar = new(grid);
-        currentAction = StartCoroutine(PatrolPath());
+        if (idle)
+        {
+            state = GuardState.Idle;
+            idlePos = transform.position;
+            idleRot = transform.rotation;
+            currentAction = StartCoroutine(Idle());
+        }
+        else
+        {
+            currentAction = StartCoroutine(PatrolPath());
+        }
     }
 
     void Update()
@@ -91,6 +102,9 @@ public class GuardManager : MonoBehaviour
             case GuardState.Chase:
                 state = GuardState.Search;
                 currentAction = StartCoroutine(SearchArea());
+                break;
+            case GuardState.Idle:
+                currentAction = StartCoroutine(Idle());
                 break;
         }
     }
@@ -133,6 +147,25 @@ public class GuardManager : MonoBehaviour
         return true;
     }
 
+    IEnumerator Idle()
+    {
+        while (state == GuardState.Idle)
+        {
+            Vector3 distance = idlePos - transform.position;
+            if (distance.magnitude > 0.1f)
+            {
+                aStarPath = aStar.GetPath(transform.position, idlePos);
+                yield return Navigate();
+                while (Quaternion.Angle(transform.rotation, idleRot) > 0.1f)
+                {
+                    transform.rotation = Quaternion.RotateTowards(transform.rotation, idleRot, rotationSpeed * Time.deltaTime);
+                    yield return null;
+                }
+                transform.rotation = idleRot;
+            }
+            yield return Scan(90, rotationSpeed / 2, true);
+        }
+    }
     IEnumerator SearchArea()
     {
         int loops = 0;
@@ -143,6 +176,10 @@ public class GuardManager : MonoBehaviour
             Vector3 nearbyPoint = grid.GetRandomNearbyPoint(transform.position);
             aStarPath = aStar.GetPath(transform.position, nearbyPoint);
             loops++;
+        }
+        if (idle)
+        {
+            state = GuardState.Idle;
         }
         currentAction = null;
     }
@@ -230,39 +267,39 @@ public class GuardManager : MonoBehaviour
             transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
             yield return null;
         }
-        yield return Scan(gameObject, 90, rotationSpeed, rotatedLeft);
+        yield return Scan(90, rotationSpeed, rotatedLeft);
     }
 
-    IEnumerator Scan(GameObject gameObject, float fov, float rotationSpeed, bool rotation)
+    IEnumerator Scan(float fov, float rotationSpeed, bool rotation)
     {
-        Quaternion startRotation = gameObject.transform.rotation;
-        Quaternion left = Quaternion.Euler(gameObject.transform.eulerAngles + new Vector3(0, 0, fov / 2));
-        Quaternion right = Quaternion.Euler(gameObject.transform.eulerAngles - new Vector3(0, 0, fov / 2));
+        Quaternion startRotation = transform.rotation;
+        Quaternion left = Quaternion.Euler(transform.eulerAngles + new Vector3(0, 0, fov / 2));
+        Quaternion right = Quaternion.Euler(transform.eulerAngles - new Vector3(0, 0, fov / 2));
         if (rotation)
         {
-            yield return RotationOrder(gameObject, rotationSpeed, left, right);
+            yield return RotationOrder(rotationSpeed, left, right);
         }
         else
         {
-            yield return RotationOrder(gameObject, rotationSpeed, right, left);
+            yield return RotationOrder(rotationSpeed, right, left);
         }
-        while (Quaternion.Angle(gameObject.transform.rotation, startRotation) > 0.1f)
+        while (Quaternion.Angle(transform.rotation, startRotation) > 0.1f)
         {
-            gameObject.transform.rotation = Quaternion.RotateTowards(gameObject.transform.rotation, startRotation, rotationSpeed * Time.deltaTime);
+            gameObject.transform.rotation = Quaternion.RotateTowards(transform.rotation, startRotation, rotationSpeed * Time.deltaTime);
             yield return null;
         }
     }
 
-    IEnumerator RotationOrder(GameObject gameObject, float rotationSpeed, Quaternion rotation1, Quaternion rotation2)
+    IEnumerator RotationOrder(float rotationSpeed, Quaternion rotation1, Quaternion rotation2)
     {
-        while (Quaternion.Angle(gameObject.transform.rotation, rotation1) > 0.1f)
+        while (Quaternion.Angle(transform.rotation, rotation1) > 0.1f)
         {
-            gameObject.transform.rotation = Quaternion.RotateTowards(gameObject.transform.rotation, rotation1, rotationSpeed * Time.deltaTime);
+            transform.rotation = Quaternion.RotateTowards(transform.rotation, rotation1, rotationSpeed * Time.deltaTime);
             yield return null;
         }
         while (Quaternion.Angle(gameObject.transform.rotation, rotation2) > 0.1f)
         {
-            gameObject.transform.rotation = Quaternion.RotateTowards(gameObject.transform.rotation, rotation2, rotationSpeed * Time.deltaTime);
+            transform.rotation = Quaternion.RotateTowards(transform.rotation, rotation2, rotationSpeed * Time.deltaTime);
             yield return null;
         }
     }

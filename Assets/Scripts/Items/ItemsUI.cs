@@ -10,8 +10,8 @@ public class ItemsUI : MonoBehaviour
     [SerializeField] GameObject itemUIPrefab;
     [SerializeField] GameObject itemsUI;
     [SerializeField] GameObject levelComplete;
-    List<Item> items = new List<Item>();
-    List<TextMeshProUGUI> itemUIList = new List<TextMeshProUGUI>();
+    List<Item> items = new();
+    List<TextMeshProUGUI> itemUIList = new();
 
     private void OnEnable()
     {
