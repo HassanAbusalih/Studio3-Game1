@@ -14,7 +14,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   lines:
   - speaker: Tutorial Bot
-    text: There's not much time, you need to get to the end of the level grab all
-      the items and leave!
+    text: 
   - speaker: Tutorial Bot
     text: Here's some rocks to throw, use them to distract enemies.
