@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ef2a023b96d1f7c4a95c7738b2829869, type: 3}
+  m_Name: Tutorial2Data
+  m_EditorClassIdentifier: 
+  lines:
+  - speaker: Tutorial Bot
+    text: Sweet, keep going now that you've learnt how to use a pebble against idle
+      guards, let's move onto something else.
+  - speaker: Tutorial Bot
+    text: In the next room there's a guard patrolling. Why don't you try getting
+      past him? Be quiet though he might be able to hear you if you get too close.
