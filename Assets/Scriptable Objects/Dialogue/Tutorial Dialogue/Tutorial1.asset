@@ -12,10 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7f59483685c7e614d892562820a20c5d, type: 3}
   m_Name: Tutorial1
   m_EditorClassIdentifier: 
-  introLines: {fileID: 0}
-  dialogueOptions:
-  - playerLine: 
-    npcDialogue: {fileID: 11400000, guid: ab253df73c17724439688ea9263e432a, type: 2}
+  introLines: {fileID: 11400000, guid: ab253df73c17724439688ea9263e432a, type: 2}
+  dialogueOptions: []
   endDialogue:
     playerLine: 
     npcDialogue: {fileID: 0}
