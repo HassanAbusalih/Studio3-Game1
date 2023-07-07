@@ -2,33 +2,47 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-
-
 public class DoorController : MonoBehaviour
 {
-    public float openAngle = 90.0f; 
-    public float smoothSpeed = 2.0f; 
-    private Quaternion openRotation; 
-    private Quaternion closedRotation; 
-    private bool isOpen = false; 
-
-    private void Start()
-    {
-      
-        openRotation = Quaternion.Euler(0.0f, openAngle, 0.0f) * transform.rotation;
-        closedRotation = transform.rotation;
-    }
+    public GameObject door;
+    public bool doorOpen = false;
 
     private void Update()
     {
-    
         if (Input.GetKeyDown(KeyCode.Space))
         {
-            isOpen = !isOpen; 
+            if (doorOpen)
+                CloseDoor();
+            else
+                OpenDoor();
         }
+    }
 
-        
-        Quaternion targetRotation = isOpen ? openRotation : closedRotation;
-        transform.rotation = Quaternion.Lerp(transform.rotation, targetRotation, smoothSpeed * Time.deltaTime);
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.CompareTag("Player"))
+        {
+            doorOpen = true;
+        }
+    }
+
+    private void OnTriggerExit(Collider other)
+    {
+        if (other.CompareTag("Player"))
+        {
+            doorOpen = false;
+        }
+    }
+
+    private void OpenDoor()
+    {
+        door.SetActive(false);
+        doorOpen = true;
+    }
+
+    private void CloseDoor()
+    {
+        door.SetActive(true);
+        doorOpen = false;
     }
 }
