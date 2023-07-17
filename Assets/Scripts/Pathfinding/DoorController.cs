@@ -3,8 +3,8 @@ using UnityEngine;
 
 public class DoorController : MonoBehaviour
 {
-    GameObject door;
-    bool interactable;
+    public GameObject door;
+    public bool interactable;
     [SerializeField] AudioSource source;
     [SerializeField] AudioClip openSound;
     [SerializeField] AudioClip closeSound;
@@ -45,7 +45,11 @@ public class DoorController : MonoBehaviour
 
     private void Toggle()
     {
-        door.SetActive(door.activeSelf);
+        door.SetActive(!door.activeSelf);
+        if (source == null)
+        {
+            return;
+        }
         if (door.activeSelf)
         {
             source.clip = openSound;

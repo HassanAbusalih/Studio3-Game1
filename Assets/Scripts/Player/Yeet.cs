@@ -29,7 +29,10 @@ public class Yeet : MonoBehaviour
         if (!active) { return; }
         LookAtMouse();
         cooldownTimer += Time.deltaTime;
-        cooldownImage.fillAmount = Mathf.Clamp(cooldownTimer/cooldown, 0, 1);
+        if (cooldownImage != null)
+        {
+            cooldownImage.fillAmount = Mathf.Clamp(cooldownTimer/cooldown, 0, 1);
+        }
         if (cooldownTimer >= cooldown && Input.GetMouseButtonDown(0))
         {
             cooldownTimer = 0;
