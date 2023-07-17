@@ -17,6 +17,7 @@ public class GuardManager : MonoBehaviour
     Vector3 targetPos;
     float timer = 0;
     [SerializeField] bool idle;
+    bool recalculate;
     Vector3 idlePos;
     Quaternion idleRot;
     [SerializeField] Transform[] patrolPath;
@@ -70,7 +71,7 @@ public class GuardManager : MonoBehaviour
         if (state == GuardState.Chase)
         {
             timer += Time.deltaTime;
-            if (timer > 0.25f)
+            if (timer > 0.25f && recalculate)
             {
                 timer = 0;
                 if (navigation != null)
@@ -243,6 +244,7 @@ public class GuardManager : MonoBehaviour
             Vector3 targetPoint = aStarPath[0];
             if ((targetPoint - transform.position).magnitude > 0.1f)
             {
+                recalculate = false;
                 Quaternion targetRotation = Quaternion.LookRotation(transform.position - targetPoint, Vector3.forward);
                 targetRotation = new Quaternion(0, 0, targetRotation.z, targetRotation.w);
                 transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, 0.05f * rotationSpeed * Time.deltaTime);
@@ -250,6 +252,7 @@ public class GuardManager : MonoBehaviour
             }
             else
             {
+                recalculate = true;
                 aStarPath.RemoveAt(0);
             }
             yield return null;

@@ -6,12 +6,14 @@ public class Item : MonoBehaviour
     bool collected;
     bool inRange;
     public string ItemName { get => itemName; }
+    NPCDialogue dialogue;
 
     void Start()
     {
         if (itemName != null)
         {
             ItemsUI.RegisterItem.Invoke(this);
+            dialogue = GetComponent<NPCDialogue>();
         }
         else
         {
@@ -21,14 +23,19 @@ public class Item : MonoBehaviour
 
     void Update()
     {
-        if (inRange && !collected && Input.GetKeyDown(KeyCode.Space))
+        if (dialogue == null && inRange && !collected && Input.GetKeyDown(KeyCode.Space))
         {
-            if (itemName != null)
-            {
-                ItemsUI.RemoveItem.Invoke(this);
-            }
-            collected = true;
+            CollectItem();
         }
+    }
+
+    public void CollectItem()
+    {
+        if (itemName != null)
+        {
+            ItemsUI.RemoveItem.Invoke(this);
+        }
+        collected = true;
     }
 
     private void OnTriggerEnter2D(Collider2D collision)

@@ -19,6 +19,12 @@ public class NPCDialogue : MonoBehaviour
     List<GameObject> optionList = new List<GameObject>();
     public static event Action dialogueStarted;
     public static event Action dialogueEnded;
+    Item item;
+
+    private void Start()
+    {
+        item = GetComponent<Item>();
+    }
 
     void Update()
     {
@@ -120,6 +126,10 @@ public class NPCDialogue : MonoBehaviour
         playerDialogue.DialogueOptions.SetActive(false);
         dialogueState = DialogueState.InRange;
         dialogueEnded?.Invoke();
+        if (item != null)
+        {
+            item.CollectItem();
+        }
         Time.timeScale = 1;
     }
 
