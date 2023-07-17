@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class Yeet : MonoBehaviour
 {
@@ -11,13 +12,27 @@ public class Yeet : MonoBehaviour
     [SerializeField] float maxDistance;
     [SerializeField] float speed;
     public static Action<Vector2> SoundGenerated;
+    float colliderSize;
+    AudioSource source;
+    [SerializeField] float cooldown = 5;
+    [SerializeField] Image cooldownImage;
+    float cooldownTimer;
+
+    private void Start()
+    {
+        cooldownTimer = cooldown;
+        colliderSize = GetComponentInParent<BoxCollider2D>().size.x;
+    }
 
     void Update()
     {
         if (!active) { return; }
         LookAtMouse();
-        if (Input.GetMouseButtonDown(0))
+        cooldownTimer += Time.deltaTime;
+        cooldownImage.fillAmount = Mathf.Clamp(cooldownTimer/cooldown, 0, 1);
+        if (cooldownTimer >= cooldown && Input.GetMouseButtonDown(0))
         {
+            cooldownTimer = 0;
             ThrowProjectile();
         }
     }
@@ -41,12 +56,16 @@ public class Yeet : MonoBehaviour
         {
             target = (Vector2)transform.position + (direction.normalized * maxDistance);
         }
+        else if (Mathf.Max(distance, colliderSize) == colliderSize)
+        {
+            target = (Vector2)transform.position + (direction.normalized * colliderSize);
+        }
         else
         {
             target = mousePos;
         }
         GameObject gameObject = Instantiate(projectilePrefab, transform.position + transform.up, Quaternion.identity);
-        gameObject.GetComponent<Projectile>().SetParameters(target, speed);
+        gameObject.GetComponent<Projectile>().SetParameters(target, speed, maxDistance, source);
     }
 
     private void OnEnable()

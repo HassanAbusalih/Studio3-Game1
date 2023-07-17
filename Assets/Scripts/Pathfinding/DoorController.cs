@@ -1,48 +1,59 @@
-using System.Collections;
-using System.Collections.Generic;
+using Unity.VisualScripting.Antlr3.Runtime;
 using UnityEngine;
 
 public class DoorController : MonoBehaviour
 {
-    public GameObject door;
-    public bool doorOpen = false;
+    GameObject door;
+    bool interactable;
+    [SerializeField] AudioSource source;
+    [SerializeField] AudioClip openSound;
+    [SerializeField] AudioClip closeSound;
 
-    private void Update()
+    void Start()
     {
-        if (Input.GetKeyDown(KeyCode.Space))
+        if (transform.childCount == 0)
         {
-            if (doorOpen)
-                CloseDoor();
-            else
-                OpenDoor();
+            Debug.LogError($"{name} needs a child GameObject.");
+            return;
+        }
+        door = transform.GetChild(0).gameObject;
+    }
+
+    void Update()
+    {
+        if (interactable && Input.GetKeyDown(KeyCode.Space))
+        {
+            Toggle();
         }
     }
 
-    private void OnTriggerEnter(Collider other)
+    void OnTriggerEnter2D(Collider2D collision)
     {
-        if (other.CompareTag("Player"))
+        if (collision.TryGetComponent(out PlayerMovement player))
         {
-            doorOpen = true;
+            interactable = true;
         }
     }
 
-    private void OnTriggerExit(Collider other)
+    void OnTriggerExit2D(Collider2D collision)
     {
-        if (other.CompareTag("Player"))
+        if (collision.TryGetComponent(out PlayerMovement player))
         {
-            doorOpen = false;
+            interactable = false;
         }
     }
 
-    private void OpenDoor()
+    private void Toggle()
     {
-        door.SetActive(false);
-        doorOpen = true;
-    }
-
-    private void CloseDoor()
-    {
-        door.SetActive(true);
-        doorOpen = false;
+        door.SetActive(door.activeSelf);
+        if (door.activeSelf)
+        {
+            source.clip = openSound;
+        }
+        else
+        {
+            source.clip = closeSound;
+        }
+        source.Play();
     }
 }
