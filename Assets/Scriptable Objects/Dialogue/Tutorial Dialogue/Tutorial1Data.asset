@@ -14,6 +14,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   lines:
   - speaker: Tutorial Bot
-    text: 
+    text: Rob, are you ok?
   - speaker: Tutorial Bot
-    text: Here's some rocks to throw, use them to distract enemies.
+    text: Why have you manifested yourself into this part of your brain?
+  - speaker: Tutorial Bot
+    text: It's not a good idea for you to be here Rob...
+  - speaker: Tutorial Bot
+    text: You're not in a good place...
+  - speaker: Tutorial Bot
+    text: Leave, Rob. Leave now.
