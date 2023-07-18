@@ -14,13 +14,14 @@ public class Yeet : MonoBehaviour
     public static Action<Vector2> SoundGenerated;
     float colliderSize;
     AudioSource source;
+    [SerializeField] int uses = 1;
     [SerializeField] float cooldown = 5;
     [SerializeField] Image cooldownImage;
-    float cooldownTimer;
+    [SerializeField] float cooldownTimer;
 
     private void Start()
     {
-        cooldownTimer = cooldown;
+        cooldownTimer = cooldown * uses;
         colliderSize = GetComponentInParent<BoxCollider2D>().size.x;
     }
 
@@ -31,13 +32,14 @@ public class Yeet : MonoBehaviour
         cooldownTimer += Time.deltaTime;
         if (cooldownImage != null)
         {
-            cooldownImage.fillAmount = Mathf.Clamp(cooldownTimer/cooldown, 0, 1);
+            cooldownImage.fillAmount = Mathf.Clamp(cooldownTimer/ (cooldown * uses), 0, 1);
         }
         if (cooldownTimer >= cooldown && Input.GetMouseButtonDown(0))
         {
-            cooldownTimer = 0;
+            cooldownTimer -= cooldown;
             ThrowProjectile();
         }
+        cooldownTimer = Mathf.Clamp(cooldownTimer, 0, cooldown * uses);
     }
 
     void LookAtMouse()

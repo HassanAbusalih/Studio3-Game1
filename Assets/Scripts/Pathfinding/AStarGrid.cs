@@ -110,7 +110,7 @@ public class AStarGrid : MonoBehaviour
         return nodes[Random.Range(0, nodes.Count)].WorldPos;
     }
 
-    /*void OnDrawGizmos()
+    void OnDrawGizmos()
     {
         if (grid == null) { return; }
         foreach (Node node in grid)
@@ -126,5 +126,5 @@ public class AStarGrid : MonoBehaviour
                 Gizmos.DrawWireCube(node.WorldPos, new Vector3(cellX, cellY));
             }
         }
-    }*/
+    }
 }
