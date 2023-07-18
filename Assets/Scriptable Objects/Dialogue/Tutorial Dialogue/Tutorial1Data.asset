@@ -14,12 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   lines:
   - speaker: Tutorial Bot
-    text: Rob, are you ok?
+    text: Who are you?
   - speaker: Tutorial Bot
-    text: Why have you manifested yourself into this part of your brain?
-  - speaker: Tutorial Bot
-    text: It's not a good idea for you to be here Rob...
+    text: What are you doing here?
   - speaker: Tutorial Bot
     text: You're not in a good place...
   - speaker: Tutorial Bot
-    text: Leave, Rob. Leave now.
+    text: You should go...
