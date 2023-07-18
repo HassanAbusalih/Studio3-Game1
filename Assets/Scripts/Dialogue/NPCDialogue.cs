@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
@@ -17,9 +18,11 @@ public class NPCDialogue : MonoBehaviour
     Queue<string> dialogueSpeaker = new();
     [SerializeField] Dialogue dialogue;
     List<GameObject> optionList = new List<GameObject>();
+    Coroutine currentLine;
     public static event Action dialogueStarted;
     public static event Action dialogueEnded;
     Item item;
+    float cd;
 
     private void Start()
     {
@@ -28,8 +31,14 @@ public class NPCDialogue : MonoBehaviour
 
     void Update()
     {
+        cd += Time.unscaledDeltaTime;
         if (Input.GetKeyDown(KeyCode.Space))
         {
+            if (cd < 0.1f)
+            {
+                return;
+            }
+            cd = 0;
             CheckState();
         }
         if (Input.GetKeyDown(KeyCode.LeftShift))
@@ -82,7 +91,19 @@ public class NPCDialogue : MonoBehaviour
                     }
                     break;
                 }
-                NextLine();
+                else
+                {
+                    if (currentLine != null)
+                    {
+                        StopCoroutine(currentLine);
+                        currentLine = null;
+                        playerDialogue.DialogueLine.text = dialogueText.Dequeue();
+                    }
+                    else
+                    {
+                        NextLine();
+                    }
+                }
                 break;
             
             case DialogueState.ExitingDialogue:
@@ -91,7 +112,16 @@ public class NPCDialogue : MonoBehaviour
                     ExitingDialogue();
                     break;
                 }
-                NextLine();
+                else if(currentLine != null)
+                {
+                    StopCoroutine(currentLine);
+                    currentLine = null;
+                    playerDialogue.DialogueLine.text = dialogueText.Dequeue();
+                }
+                else
+                {
+                    NextLine();
+                }
                 break;
         }
     }
@@ -126,11 +156,11 @@ public class NPCDialogue : MonoBehaviour
         playerDialogue.DialogueOptions.SetActive(false);
         dialogueState = DialogueState.InRange;
         dialogueEnded?.Invoke();
+        Time.timeScale = 1;
         if (item != null)
         {
             item.CollectItem();
         }
-        Time.timeScale = 1;
     }
 
     void SelectOption(DialogueOptions dialogueOptions)
@@ -152,12 +182,39 @@ public class NPCDialogue : MonoBehaviour
         dialogueState = DialogueState.InDialogue;
     }
 
+    private IEnumerator AnimateLine(string line, TextMeshProUGUI dialogueLine, float duration)
+    {
+        string[] words = line.Split();
+        string currentText = "";
+        foreach(string word in words)
+        {
+            float time = 0;
+            while (time < duration)
+            {
+                time += Time.unscaledDeltaTime;
+                float t = time / duration;
+                int alpha = Mathf.RoundToInt(Mathf.Lerp(0, 255, t));
+                string hexAlpha = alpha.ToString("X2");
+                dialogueLine.text = currentText + $"<alpha=#{hexAlpha}>{word}";
+                yield return null;
+            }
+            currentText += word + " ";
+        }
+        dialogueLine.text = dialogueText.Dequeue();
+        dialogueSpeaker.Dequeue();
+        currentLine = null;
+    }
+
     private void NextLine()
     {
         if (dialogueText.TryPeek(out string result))
         {
-            playerDialogue.DialogueSpeaker.text = dialogueSpeaker.Dequeue();
-            playerDialogue.DialogueLine.text = dialogueText.Dequeue();
+            playerDialogue.DialogueSpeaker.text = dialogueSpeaker.Peek();
+            if (currentLine != null)
+            {
+                StopCoroutine(currentLine);
+            }
+            currentLine = StartCoroutine(AnimateLine(result, playerDialogue.DialogueLine, playerDialogue.FadeDuration));
         }
     }
 

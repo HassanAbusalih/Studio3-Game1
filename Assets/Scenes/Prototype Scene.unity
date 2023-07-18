@@ -7017,6 +7017,7 @@ MonoBehaviour:
   dialogueOptionsPrefab: {fileID: 126589992098980556, guid: bcb02adef398e364f90b7ef4f933687e, type: 3}
   dialogueSpeaker: {fileID: 1884878505}
   dialogueLine: {fileID: 1529969934}
+  fadeDuration: 0.15
 --- !u!114 &2105725399
 MonoBehaviour:
   m_ObjectHideFlags: 0

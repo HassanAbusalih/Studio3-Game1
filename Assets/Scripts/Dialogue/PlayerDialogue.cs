@@ -12,6 +12,7 @@ public class PlayerDialogue : MonoBehaviour
     [SerializeField] GameObject dialogueOptionsPrefab;
     [SerializeField] TextMeshProUGUI dialogueSpeaker;
     [SerializeField] TextMeshProUGUI dialogueLine;
+    [SerializeField][Range(0, 0.5f)] float fadeDuration = 0.15f;
 
     public GameObject DialogueText { get => dialogueText; }
     public TextMeshProUGUI DialogueSpeaker { get => dialogueSpeaker; }
@@ -19,4 +20,5 @@ public class PlayerDialogue : MonoBehaviour
     public GameObject DialogueOptionsPrefab { get => dialogueOptionsPrefab; }
     public GameObject DialogueOptions { get => dialogueOptions; }
     public GameObject DialogueUI { get => dialogueUI; }
+    public float FadeDuration { get => fadeDuration; }
 }

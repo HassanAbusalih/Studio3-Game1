@@ -32,7 +32,7 @@ public class Yeet : MonoBehaviour
         cooldownTimer += Time.deltaTime;
         if (cooldownImage != null)
         {
-            cooldownImage.fillAmount = Mathf.Clamp(cooldownTimer/ (cooldown * uses), 0, 1);
+            cooldownImage.fillAmount = Mathf.Clamp(cooldownTimer/(cooldown * uses), 0, 1);
         }
         if (cooldownTimer >= cooldown && Input.GetMouseButtonDown(0))
         {

@@ -28,20 +28,30 @@ public class ItemsUI : MonoBehaviour
     void OnRegisterItem(Item item)
     {
         items.Add(item);
-        GameObject itemUI = Instantiate(itemUIPrefab, itemsUI.transform);
-        itemUIList.Add(itemUI.GetComponent<TextMeshProUGUI>());
-        itemUIList[itemUIList.Count - 1].text = item.ItemName;
+        if (itemsUI != null)
+        {
+            GameObject itemUI = Instantiate(itemUIPrefab, itemsUI.transform);
+            itemUIList.Add(itemUI.GetComponent<TextMeshProUGUI>());
+            itemUIList[itemUIList.Count - 1].text = item.ItemName;
+        }
     }
 
     void OnRemoveItem(Item item)
     {
         items.Remove(item);
-        foreach (var itemUI in itemUIList)
+        if (itemUIList.Count > 0)
         {
-            if (itemUI.text == item.ItemName)
+            foreach (var itemUI in itemUIList)
             {
-                itemUI.text = "<s>" + item.ItemName + "</s>";
-                break;
+                if (itemUI == null)
+                {
+                    break;
+                }
+                if (itemUI.text == item.ItemName)
+                {
+                    itemUI.text = "<s>" + item.ItemName + "</s>";
+                    break;
+                }
             }
         }
         Destroy(item.transform.parent.gameObject);
