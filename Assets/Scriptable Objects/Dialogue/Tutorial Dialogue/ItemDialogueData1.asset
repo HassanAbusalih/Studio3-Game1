@@ -13,11 +13,10 @@ MonoBehaviour:
   m_Name: ItemDialogueData1
   m_EditorClassIdentifier: 
   lines:
-  - speaker: TutorialBot
-    text: Looks like you've found a coping mechanism.
-  - speaker: TutorialBot
-    text: It seems your brain is trying to cope with something, that could very well
-      be why you've manfisted yourself into your own brain.
-  - speaker: TutorialBot
-    text: Exit through here Rob, I think you may just be able to cope your way out
-      of here.
+  - speaker: Inner Humorous
+    text: HAHAHAHAHA
+  - speaker: Inner Humorous
+    text: Hey, man why the long face looks like you finally found some humour. Lighten
+      up!
+  - speaker: Inner Humorous
+    text: Hold onto me, I may help cheer you up a litle bit.
