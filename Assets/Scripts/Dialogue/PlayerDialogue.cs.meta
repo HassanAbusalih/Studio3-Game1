@@ -3,7 +3,16 @@ guid: f7399d4dc00a69a42b5d2144dc04ad56
 MonoImporter:
   externalObjects: {}
   serializedVersion: 2
-  defaultReferences: []
+  defaultReferences:
+  - dialogueUI: {instanceID: 0}
+  - dialogueText: {instanceID: 0}
+  - dialogueOptions: {instanceID: 0}
+  - dialogueOptionsPrefab: {instanceID: 0}
+  - dialogueSpeaker: {instanceID: 0}
+  - dialogueLine: {instanceID: 0}
+  - audioSource: {instanceID: 0}
+  - line: {fileID: 8300000, guid: 60f83cf7a9bb0f747af8c45971529edd, type: 3}
+  - start: {instanceID: 0}
   executionOrder: 0
   icon: {instanceID: 0}
   userData: 
