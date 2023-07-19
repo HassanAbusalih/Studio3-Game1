@@ -13,7 +13,7 @@ public class Yeet : MonoBehaviour
     [SerializeField] float speed;
     public static Action<Vector2> SoundGenerated;
     float colliderSize;
-    AudioSource source;
+    [SerializeField] AudioSource source;
     [SerializeField] int uses = 1;
     [SerializeField] float cooldown = 5;
     [SerializeField] Image cooldownImage;
@@ -27,7 +27,7 @@ public class Yeet : MonoBehaviour
 
     void Update()
     {
-        if (!active) { return; }
+        if (!active || Time.timeScale == 0) { return; }
         LookAtMouse();
         cooldownTimer += Time.deltaTime;
         if (cooldownImage != null)

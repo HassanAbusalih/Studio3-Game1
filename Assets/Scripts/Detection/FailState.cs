@@ -1,9 +1,12 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using System;
 
 public class FailState : MonoBehaviour
 {
     [SerializeField] GameObject gameOverPanel;
+    PlayerMovement playerMovement;
+    public static event Action ResetGame;
 
     private void Awake()
     {
@@ -28,7 +31,12 @@ public class FailState : MonoBehaviour
 
     public void ResetLevel()
     {
+        ResetGame?.Invoke();
+        playerMovement = FindObjectOfType<PlayerMovement>();
+        playerMovement.transform.position = Checkpoint.currentRespawnPosition;
+        playerMovement.transform.rotation = Checkpoint.currentRespawnRotation;
         Time.timeScale = 1;
-        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+        gameOverPanel.SetActive(false);
+        //SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
 }

@@ -112,15 +112,18 @@ public class NPCDialogue : MonoBehaviour
                     ExitingDialogue();
                     break;
                 }
-                else if(currentLine != null)
-                {
-                    StopCoroutine(currentLine);
-                    currentLine = null;
-                    playerDialogue.DialogueLine.text = dialogueText.Dequeue();
-                }
                 else
                 {
-                    NextLine();
+                    if (currentLine != null)
+                    {
+                        StopCoroutine(currentLine);
+                        currentLine = null;
+                        playerDialogue.DialogueLine.text = dialogueText.Dequeue();
+                    }
+                    else
+                    {
+                        NextLine();
+                    }
                 }
                 break;
         }
@@ -184,11 +187,19 @@ public class NPCDialogue : MonoBehaviour
 
     private IEnumerator AnimateLine(string line, TextMeshProUGUI dialogueLine, float duration)
     {
+        if (playerDialogue.AudioSource != null)
+        {
+            playerDialogue.AudioSource.clip = playerDialogue.Line;
+        }
         string[] words = line.Split();
         string currentText = "";
         foreach(string word in words)
         {
             float time = 0;
+            if (playerDialogue.Line != null)
+            {
+                playerDialogue.AudioSource.Play();
+            }
             while (time < duration)
             {
                 time += Time.unscaledDeltaTime;

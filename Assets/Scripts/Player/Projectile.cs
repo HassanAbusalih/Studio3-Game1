@@ -35,12 +35,27 @@ public class Projectile : MonoBehaviour
             time += Time.deltaTime;
             yield return null;
         }
-        transform.position = target;
-        Destroy(gameObject, 5);
         if (source != null)
         {
             source.Play();
         }
+        transform.position = target;
+        Destroy(gameObject, 5);
         Yeet.SoundGenerated?.Invoke((Vector2)transform.position);
+    }
+
+    void DeleteMe()
+    {
+        Destroy(gameObject);
+    }
+
+    private void OnEnable()
+    {
+        FailState.ResetGame += DeleteMe;
+    }
+
+    private void OnDisable()
+    {
+        FailState.ResetGame -= DeleteMe;
     }
 }

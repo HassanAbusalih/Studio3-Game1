@@ -2,7 +2,7 @@
 using UnityEngine;
 
 /// <summary>
-/// This class holds references to all UI elements concerning dialogue. It is attached to the player, and is used to detect when the player comes within range for dialogue with an NPC.
+/// This class holds references to all UI elements, variables and audio concerning dialogue. It is attached to the player, and is used to detect when the player comes within range for dialogue with an NPC.
 /// </summary>
 public class PlayerDialogue : MonoBehaviour
 {
@@ -13,6 +13,9 @@ public class PlayerDialogue : MonoBehaviour
     [SerializeField] TextMeshProUGUI dialogueSpeaker;
     [SerializeField] TextMeshProUGUI dialogueLine;
     [SerializeField][Range(0, 0.5f)] float fadeDuration = 0.15f;
+    [SerializeField] AudioSource audioSource;
+    [SerializeField] AudioClip line;
+    [SerializeField] AudioClip start;
 
     public GameObject DialogueText { get => dialogueText; }
     public TextMeshProUGUI DialogueSpeaker { get => dialogueSpeaker; }
@@ -21,4 +24,7 @@ public class PlayerDialogue : MonoBehaviour
     public GameObject DialogueOptions { get => dialogueOptions; }
     public GameObject DialogueUI { get => dialogueUI; }
     public float FadeDuration { get => fadeDuration; }
+    public AudioSource AudioSource { get => audioSource; }
+    public AudioClip Line { get => line; }
+    public AudioClip Start { get => start; }
 }

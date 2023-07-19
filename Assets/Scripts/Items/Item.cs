@@ -7,6 +7,7 @@ public class Item : MonoBehaviour
     bool inRange;
     public string ItemName { get => itemName; }
     NPCDialogue dialogue;
+    PlayerDialogue playerDialogue;
 
     void Start()
     {
@@ -14,6 +15,7 @@ public class Item : MonoBehaviour
         {
             ItemsUI.RegisterItem.Invoke(this);
             dialogue = GetComponent<NPCDialogue>();
+            playerDialogue = FindObjectOfType<PlayerDialogue>();
         }
         else
         {
@@ -36,6 +38,7 @@ public class Item : MonoBehaviour
             ItemsUI.RemoveItem.Invoke(this);
         }
         collected = true;
+        playerDialogue.AudioSource.PlayOneShot(playerDialogue.Start);
     }
 
     private void OnTriggerEnter2D(Collider2D collision)

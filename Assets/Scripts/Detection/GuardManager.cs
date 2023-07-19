@@ -18,8 +18,8 @@ public class GuardManager : MonoBehaviour
     float timer = 0;
     [SerializeField] bool idle;
     bool recalculate;
-    Vector3 idlePos;
-    Quaternion idleRot;
+    Vector3 startPos;
+    Quaternion startRot;
     [SerializeField] Transform[] patrolPath;
     [SerializeField] float moveSpeed;
     [SerializeField] float rotationSpeed;
@@ -53,11 +53,11 @@ public class GuardManager : MonoBehaviour
         grid = FindObjectOfType<AStarGrid>();
         player = FindObjectOfType<PlayerMovement>();
         aStar = new(grid);
+        startPos = transform.position;
+        startRot = transform.rotation;
         if (idle)
         {
             state = GuardState.Idle;
-            idlePos = transform.position;
-            idleRot = transform.rotation;
             currentAction = StartCoroutine(Idle());
         }
         else
@@ -152,17 +152,17 @@ public class GuardManager : MonoBehaviour
     {
         while (state == GuardState.Idle)
         {
-            Vector3 distance = idlePos - transform.position;
+            Vector3 distance = startPos - transform.position;
             if (distance.magnitude > 0.1f)
             {
-                aStarPath = aStar.GetPath(transform.position, idlePos);
+                aStarPath = aStar.GetPath(transform.position, startPos);
                 yield return Navigate();
-                while (Quaternion.Angle(transform.rotation, idleRot) > 0.1f)
+                while (Quaternion.Angle(transform.rotation, startRot) > 0.1f)
                 {
-                    transform.rotation = Quaternion.RotateTowards(transform.rotation, idleRot, rotationSpeed * Time.deltaTime);
+                    transform.rotation = Quaternion.RotateTowards(transform.rotation, startRot, rotationSpeed * Time.deltaTime);
                     yield return null;
                 }
-                transform.rotation = idleRot;
+                transform.rotation = startRot;
             }
             yield return Scan(90, rotationSpeed / 2, true);
         }
@@ -307,13 +307,40 @@ public class GuardManager : MonoBehaviour
         }
     }
 
+    void ResetGuard()
+    {
+        transform.position = startPos;
+        transform.rotation = startRot;
+        if (navigation != null) 
+        { 
+            StopCoroutine(navigation);
+        }
+        if (currentAction != null)
+        {
+            StopCoroutine(currentAction);
+        }
+        currentAction = navigation = null;
+        aStarPath.Clear();
+        if (idle)
+        {
+            state = GuardState.Idle;
+            currentAction = StartCoroutine(Idle());
+        }
+        else
+        {
+            currentAction = StartCoroutine(PatrolPath());
+        }
+    }
+
     private void OnEnable()
     {
         Yeet.SoundGenerated += SoundHeard;
+        FailState.ResetGame += ResetGuard;
     }
 
     private void OnDisable()
     {
         Yeet.SoundGenerated -= SoundHeard;
+        FailState.ResetGame -= ResetGuard;
     }
 }

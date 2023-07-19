@@ -30,7 +30,15 @@ public class AStarGrid : MonoBehaviour
                 //offset grid by half so the center is at world position (0,0), and offset each node's world pos by half of the cell's size
                 Vector3 worldPos = new Vector3(cellX * (0.5f + x - gridX / 2f), cellY * (0.5f + y - gridY / 2f));
                 grid[currentNode] = new Node(gridPos, worldPos);
-                grid[currentNode].walkable = Physics2D.OverlapCircle(worldPos, cellX/4) == null;
+                Collider2D collider2D = Physics2D.OverlapCircle(worldPos, cellX / 4);
+                if (collider2D != null && collider2D.isTrigger || collider2D == null) 
+                {
+                    grid[currentNode].walkable = true;
+                }
+                else
+                {
+                    grid[currentNode].walkable = false;
+                }
             }
         }
     }
