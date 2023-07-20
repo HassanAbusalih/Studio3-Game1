@@ -14,10 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   lines:
   - speaker: TutorialBot
-    text: Rob, it seems like your emotions are manifesting themselves and keeping
-      you from getting furrther into your brain.
+    text: It seems like your emotions are manifesting themselves.
   - speaker: TutorialBot
     text: 'You need to be careful watch out for how they behave. '
   - speaker: TutorialBot
-    text: You're on the right track Rob just a bit more to go. There must be a way
-      out of here. If only you'd coped with things better this wouldn't be so bothersome.
+    text: You need to cope, just cope.
