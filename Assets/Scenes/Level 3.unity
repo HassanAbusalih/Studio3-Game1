@@ -4278,7 +4278,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 1730592389}
         m_TargetAssemblyTypeName: FailState, Assembly-CSharp
-        m_MethodName: ResetLevel
+        m_MethodName: NextLevel
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -10772,7 +10772,7 @@ MonoBehaviour:
   - {fileID: 749009376}
   moveSpeed: 7
   rotationSpeed: 50
-  hearingDistance: 10
+  hearingDistance: 7
 --- !u!212 &1666483748
 SpriteRenderer:
   m_ObjectHideFlags: 0

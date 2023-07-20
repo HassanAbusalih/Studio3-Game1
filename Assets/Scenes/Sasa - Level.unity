@@ -2604,9 +2604,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
+      - m_Target: {fileID: 1730592389}
         m_TargetAssemblyTypeName: FailState, Assembly-CSharp
-        m_MethodName: ResetLevel
+        m_MethodName: NextLevel
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -2840,8 +2840,11 @@ MonoBehaviour:
   projectilePrefab: {fileID: 7300815338884688565, guid: afa0c02ca856e524cbeeff76e25c34cf, type: 3}
   maxDistance: 10
   speed: 20
+  source: {fileID: 0}
+  uses: 1
   cooldown: 5
   cooldownImage: {fileID: 0}
+  cooldownTimer: 0
 --- !u!1 &830252806
 GameObject:
   m_ObjectHideFlags: 0
@@ -4604,7 +4607,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
+      - m_Target: {fileID: 1730592389}
         m_TargetAssemblyTypeName: FailState, Assembly-CSharp
         m_MethodName: ResetLevel
         m_Mode: 1
@@ -7954,6 +7957,10 @@ MonoBehaviour:
   dialogueOptionsPrefab: {fileID: 0}
   dialogueSpeaker: {fileID: 0}
   dialogueLine: {fileID: 0}
+  fadeDuration: 0.15
+  audioSource: {fileID: 0}
+  line: {fileID: 0}
+  start: {fileID: 0}
 --- !u!114 &1730592391
 MonoBehaviour:
   m_ObjectHideFlags: 0
