@@ -10,7 +10,7 @@ public class FailState : MonoBehaviour
 
     private void Awake()
     {
-        Time.timeScale = 1.0f;
+        Time.timeScale = 1f;
     }
 
     private void OnEnable()
@@ -37,6 +37,18 @@ public class FailState : MonoBehaviour
         playerMovement.transform.rotation = Checkpoint.currentRespawnRotation;
         Time.timeScale = 1;
         gameOverPanel.SetActive(false);
-        //SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+    }
+
+    public void NextLevel()
+    {
+        int sceneIndex = SceneManager.GetActiveScene().buildIndex;
+        if (sceneIndex < SceneManager.sceneCount - 1)
+        {
+            SceneManager.LoadScene(sceneIndex + 1);
+        }
+        else
+        {
+            SceneManager.LoadScene(0);
+        }
     }
 }

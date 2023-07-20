@@ -7,6 +7,7 @@ public class ItemsUI : MonoBehaviour
 {
     public static Action<Item> RegisterItem;
     public static Action<Item> RemoveItem;
+    public static Action LevelComplete;
     [SerializeField] GameObject itemUIPrefab;
     [SerializeField] GameObject itemsUI;
     [SerializeField] GameObject levelComplete;
@@ -17,12 +18,14 @@ public class ItemsUI : MonoBehaviour
     {
         RegisterItem += OnRegisterItem;
         RemoveItem += OnRemoveItem;
+        LevelExit.Exited += OnLevelExit;
     }
 
     private void OnDisable()
     {
         RegisterItem -= OnRegisterItem;
         RemoveItem -= OnRemoveItem;
+        LevelExit.Exited -= OnLevelExit;
     }
 
     void OnRegisterItem(Item item)
@@ -58,7 +61,13 @@ public class ItemsUI : MonoBehaviour
         if (items.Count == 0)
         {
             Time.timeScale = 0;
-            levelComplete.SetActive(true);
+            LevelComplete.Invoke();
         }
+    }
+
+    void OnLevelExit()
+    {
+        //This might actually be the most lazy code I've ever written
+        levelComplete.SetActive(true);
     }
 }

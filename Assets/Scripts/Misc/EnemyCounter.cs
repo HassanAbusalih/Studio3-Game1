@@ -5,17 +5,12 @@ using UnityEngine.UI;
 
 public class EnemyCounter : MonoBehaviour
 {
-    GameObject[] enemies;
+    GuardManager[] enemies;
     public Text enemyCountText;
+    
     void Start()
     {
-        
-    }
-
-    
-    void Update()
-    {
-        enemies = GameObject.FindGameObjectsWithTag("Guard");
-        enemyCountText.text = " " + enemies.Length.ToString();
+        enemies = FindObjectsOfType<GuardManager>();
+        enemyCountText.text = enemies.Length.ToString();
     }
 }
