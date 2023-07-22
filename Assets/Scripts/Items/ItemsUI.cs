@@ -61,7 +61,7 @@ public class ItemsUI : MonoBehaviour
         if (items.Count == 0)
         {
             Time.timeScale = 0;
-            LevelComplete.Invoke();
+            LevelComplete?.Invoke();
         }
     }
 

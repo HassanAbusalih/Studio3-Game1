@@ -2,6 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
+using AStar;
+using Unity.IO.LowLevel.Unsafe;
 
 public class GuardManager : MonoBehaviour
 {
@@ -12,7 +14,7 @@ public class GuardManager : MonoBehaviour
     PlayerMovement player;
     List<Vector3> aStarPath = new();
     AStarGrid grid;
-    AStar aStar;
+    AStar.AStar aStar;
     int currentPos;
     Vector3 targetPos;
     float timer = 0;
@@ -27,7 +29,7 @@ public class GuardManager : MonoBehaviour
 
     private void OnDrawGizmos()
     {
-        if (aStarPath != null) 
+        if (aStarPath != null)
         {
             foreach (var path in aStarPath)
             {
@@ -112,7 +114,7 @@ public class GuardManager : MonoBehaviour
 
     void SoundHeard(Vector2 position)
     {
-        if (state != GuardState.Chase && Vector2.Distance(position, transform.position) < hearingDistance) 
+        if (state != GuardState.Chase && Vector2.Distance(position, transform.position) < hearingDistance)
         {
             state = GuardState.Search;
             StopCoroutine(currentAction);
@@ -173,7 +175,7 @@ public class GuardManager : MonoBehaviour
         while (loops < 3)
         {
             yield return Navigate();
-            yield return LookAround();
+            yield return LookAround(patrolPath[(currentPos + 1) % patrolPath.Length].position);
             Vector3 nearbyPoint = grid.GetRandomNearbyPoint(transform.position);
             aStarPath = aStar.GetPath(transform.position, nearbyPoint);
             loops++;
@@ -190,7 +192,7 @@ public class GuardManager : MonoBehaviour
         while (state == GuardState.Chase)
         {
             navigation = StartCoroutine(Navigate());
-            yield return new WaitUntil(()=> navigation == null);
+            yield return new WaitUntil(() => navigation == null);
             if (!TacticalVisor())
             {
                 aStarPath = aStar.GetPath(transform.position, targetPos);
@@ -215,7 +217,7 @@ public class GuardManager : MonoBehaviour
                 aStarPath = aStar.GetPath(transform.position, targetPos);
             }
             yield return Navigate();
-            yield return LookAround();
+            yield return LookAround(patrolPath[(currentPos + 1) % patrolPath.Length].position);
         }
     }
 
@@ -260,14 +262,14 @@ public class GuardManager : MonoBehaviour
         navigation = null;
     }
 
-    IEnumerator LookAround()
+    IEnumerator LookAround(Vector3 targetPos)
     {
         Quaternion targetRotation = Quaternion.LookRotation(Vector3.forward, targetPos - transform.position);
         float angle = Vector2.SignedAngle(transform.up, (targetPos - transform.position).normalized);
         bool rotatedLeft = angle > 0;
         while (Quaternion.Angle(transform.rotation, targetRotation) > 0.1f)
         {
-            transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
+            transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRotation, 2 * rotationSpeed * Time.deltaTime);
             yield return null;
         }
         yield return Scan(90, rotationSpeed, rotatedLeft);
@@ -311,8 +313,8 @@ public class GuardManager : MonoBehaviour
     {
         transform.position = startPos;
         transform.rotation = startRot;
-        if (navigation != null) 
-        { 
+        if (navigation != null)
+        {
             StopCoroutine(navigation);
         }
         if (currentAction != null)
@@ -335,12 +337,12 @@ public class GuardManager : MonoBehaviour
     private void OnEnable()
     {
         Yeet.SoundGenerated += SoundHeard;
-        FailState.ResetGame += ResetGuard;
+        GameStateManager.ResetGame += ResetGuard;
     }
 
     private void OnDisable()
     {
         Yeet.SoundGenerated -= SoundHeard;
-        FailState.ResetGame -= ResetGuard;
+        GameStateManager.ResetGame -= ResetGuard;
     }
 }

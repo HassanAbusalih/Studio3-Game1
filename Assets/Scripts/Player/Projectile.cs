@@ -51,11 +51,11 @@ public class Projectile : MonoBehaviour
 
     private void OnEnable()
     {
-        FailState.ResetGame += DeleteMe;
+        GameStateManager.ResetGame += DeleteMe;
     }
 
     private void OnDisable()
     {
-        FailState.ResetGame -= DeleteMe;
+        GameStateManager.ResetGame -= DeleteMe;
     }
 }

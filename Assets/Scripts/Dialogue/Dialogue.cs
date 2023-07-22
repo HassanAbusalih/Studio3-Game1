@@ -1,7 +1,7 @@
 using UnityEngine;
 
 /// <summary>
-/// This class is a scriptable object that holds everything concerning dialogue with a specific NPC. This includes intro lines that are played when dialogue is initiated, an array of dialogue options (if applicable),
+/// This class is a scriptable object that holds everything concerning dialogue with a specific NPC. This includes intro lines that are displayed when dialogue is initiated, an array of dialogue options (if applicable),
 /// and an option to end the dialogue (if needed).
 /// </summary>
 

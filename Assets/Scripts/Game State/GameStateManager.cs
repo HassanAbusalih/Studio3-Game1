@@ -2,15 +2,16 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using System;
 
-public class FailState : MonoBehaviour
+public class GameStateManager : MonoBehaviour
 {
     [SerializeField] GameObject gameOverPanel;
     PlayerMovement playerMovement;
     public static event Action ResetGame;
 
-    private void Awake()
+    private void Start()
     {
         Time.timeScale = 1f;
+        playerMovement = FindObjectOfType<PlayerMovement>();
     }
 
     private void OnEnable()
@@ -32,7 +33,6 @@ public class FailState : MonoBehaviour
     public void ResetLevel()
     {
         ResetGame?.Invoke();
-        playerMovement = FindObjectOfType<PlayerMovement>();
         playerMovement.transform.position = Checkpoint.currentRespawnPosition;
         playerMovement.transform.rotation = Checkpoint.currentRespawnRotation;
         Time.timeScale = 1;
