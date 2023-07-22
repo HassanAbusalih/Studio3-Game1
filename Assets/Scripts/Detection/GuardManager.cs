@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
+using AStar;
 
 public class GuardManager : MonoBehaviour
 {
@@ -12,7 +13,7 @@ public class GuardManager : MonoBehaviour
     PlayerMovement player;
     List<Vector3> aStarPath = new();
     AStarGrid grid;
-    AStar aStar;
+    AStar.AStar aStar;
     int currentPos;
     Vector3 targetPos;
     float timer = 0;
@@ -173,7 +174,7 @@ public class GuardManager : MonoBehaviour
         while (loops < 3)
         {
             yield return Navigate();
-            yield return LookAround();
+            yield return LookAround(patrolPath[(currentPos + 1) % patrolPath.Length].position);
             Vector3 nearbyPoint = grid.GetRandomNearbyPoint(transform.position);
             aStarPath = aStar.GetPath(transform.position, nearbyPoint);
             loops++;
@@ -215,7 +216,7 @@ public class GuardManager : MonoBehaviour
                 aStarPath = aStar.GetPath(transform.position, targetPos);
             }
             yield return Navigate();
-            yield return LookAround();
+            yield return LookAround(patrolPath[(currentPos + 1) % patrolPath.Length].position);
         }
     }
 
@@ -260,14 +261,14 @@ public class GuardManager : MonoBehaviour
         navigation = null;
     }
 
-    IEnumerator LookAround()
+    IEnumerator LookAround(Vector3 targetPos)
     {
         Quaternion targetRotation = Quaternion.LookRotation(Vector3.forward, targetPos - transform.position);
         float angle = Vector2.SignedAngle(transform.up, (targetPos - transform.position).normalized);
         bool rotatedLeft = angle > 0;
         while (Quaternion.Angle(transform.rotation, targetRotation) > 0.1f)
         {
-            transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
+            transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRotation, 2 * rotationSpeed * Time.deltaTime);
             yield return null;
         }
         yield return Scan(90, rotationSpeed, rotatedLeft);

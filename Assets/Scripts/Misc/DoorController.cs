@@ -17,6 +17,7 @@ public class DoorController : MonoBehaviour
             return;
         }
         door = transform.GetChild(0).gameObject;
+        gameObject.layer = 0;
     }
 
     void Update()
