@@ -2,7 +2,7 @@
 using UnityEngine;
 
 /// <summary>
-/// This class holds references to all variables concerning dialogue. It is attached to the player, and is used to detect when the player comes within range for dialogue with an NPC.
+/// This class holds references to all UI elements, variables and audio concerning dialogue. It is attached to the player, and is used to detect when the player comes within range for dialogue with an NPC.
 /// </summary>
 public class PlayerDialogue : MonoBehaviour
 {

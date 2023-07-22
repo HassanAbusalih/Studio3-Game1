@@ -38,10 +38,7 @@ public class Item : MonoBehaviour
             ItemsUI.RemoveItem.Invoke(this);
         }
         collected = true;
-        if (playerDialogue.AudioSource != null && playerDialogue.Start != null)
-        {
-            playerDialogue.AudioSource.PlayOneShot(playerDialogue.Start);
-        }
+        playerDialogue.AudioSource.PlayOneShot(playerDialogue.Start);
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
