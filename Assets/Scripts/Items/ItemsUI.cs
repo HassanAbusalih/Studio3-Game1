@@ -60,7 +60,6 @@ public class ItemsUI : MonoBehaviour
         Destroy(item.transform.parent.gameObject);
         if (items.Count == 0)
         {
-            Time.timeScale = 0;
             LevelComplete?.Invoke();
         }
     }
