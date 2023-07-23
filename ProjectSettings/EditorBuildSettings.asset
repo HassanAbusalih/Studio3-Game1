@@ -12,9 +12,18 @@ EditorBuildSettings:
     path: Assets/Scenes/Tutorial.unity
     guid: 8336b774bdcfd75479662be7a0c1e7d7
   - enabled: 1
-    path: Assets/Scenes/Sasa - Level.unity
-    guid: 20a4db016966e9844b81b1b6eb5be70a
+    path: Assets/Scenes/Level 2.unity
+    guid: 30e613c9e3a7f434db1955b9a5bdce79
   - enabled: 1
     path: Assets/Scenes/Level 3.unity
+    guid: 8b63b9ae61338a042ae31efb768d1411
+  - enabled: 1
+    path: Assets/Scenes/Level 4.unity
+    guid: 4449f3a01e7f95c449441ad7523c0c27
+  - enabled: 0
+    path: Assets/Scenes/Sasa - Level.unity
+    guid: 20a4db016966e9844b81b1b6eb5be70a
+  - enabled: 0
+    path: Assets/Scenes/Level 3 - old.unity
     guid: 1e714c364fe659d449504c5d2372cba8
   m_configObjects: {}
