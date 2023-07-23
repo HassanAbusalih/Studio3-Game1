@@ -67,6 +67,7 @@ public class ItemsUI : MonoBehaviour
     void OnLevelExit()
     {
         //This might actually be the most lazy code I've ever written
+        Time.timeScale = 0;
         levelComplete.SetActive(true);
     }
 }

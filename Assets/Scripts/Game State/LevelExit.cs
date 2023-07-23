@@ -18,13 +18,9 @@ public class LevelExit : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (sceneIndex < scenes - 1)
+        if (collision.TryGetComponent(out PlayerMovement player))
         {
-            SceneManager.LoadScene(sceneIndex + 1);
-        }
-        else
-        {
-            SceneManager.LoadScene(0);
+            Exited?.Invoke();
         }
     }
 
