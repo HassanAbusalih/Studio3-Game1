@@ -27,28 +27,7 @@ public class GuardManager : MonoBehaviour
     [SerializeField] float rotationSpeed;
     [SerializeField] float hearingDistance;
 
-    private void OnDrawGizmos()
-    {
-        if (aStarPath != null)
-        {
-            foreach (var path in aStarPath)
-            {
-                Gizmos.color = Color.yellow;
-                Gizmos.DrawCube(path, Vector3.one);
-            }
-        }
-        foreach (var point in patrolPath)
-        {
-            Gizmos.color = Color.green;
-            Gizmos.DrawSphere(point.position, 0.25f);
-            if (grid != null)
-            {
-                Gizmos.color = Color.red;
-                Gizmos.DrawSphere(grid.GetNearestWalkable(grid.WorldToGrid(point.position), point.position).WorldPos, 0.25f);
-            }
-        }
-        Handles.DrawWireDisc(transform.position, transform.forward, hearingDistance);
-    }
+   
 
     void Start()
     {
